@@ -3,6 +3,7 @@
 
 import yargs from "yargs";
 import { run as runBackup } from "./backup";
+import { run as runExtract } from "./extract";
 import { run as runPrepare } from "./prepare";
 
 yargs
@@ -36,7 +37,19 @@ yargs
   }, (args) => {
     runPrepare(args);
   })
+
+  .command("extract <backupName>", "Run extract", (cmdArgs: yargs.Argv) => {
+    return cmdArgs
+      .positional("backupName", { type: "string" })
+
+      .option("gcloudServiceAccountKey?", { type: "string" })
+      .option("gcloudServiceAccountFile?", { type: "string" })
+      .option("gcloudBackupPath", { type: "string" });
+  }, (args) => {
+    runExtract(args);
+  })
+
   .help()
-  .demandCommand(1, "You need at least one command before moving on")
+  .demandCommand(1, "You need at least one command")
   .showHelpOnFail(true)
   .argv;
