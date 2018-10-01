@@ -4,6 +4,7 @@ import fs from "fs-extra";
 import pEvent, { Emitter } from "p-event";
 import path from "path";
 import tempy from "tempy";
+import zlib from "zlib";
 import { consoleHr, printOptions } from "../lib/cli";
 import { setupGCloud } from "../lib/gcloud";
 
@@ -119,13 +120,13 @@ async function convertToSQL(options: IExtractOptions) {
     await pEvent(mysql.stderr, "__ready__");
     console.log("mysql ready!");
 
-    const target = fs.createWriteStream(path.join(options.tempDirectory, "all-databases.sql"));
+    const target = fs.createWriteStream(path.join(options.tempDirectory, "all-databases.sql.gz"));
     const backup = execa("mysqldump", [
       "--all-databases",
       `-u${options.mysqlUser}`,
       `-p${options.mysqlPassword}`,
     ]);
-    backup.stdout.pipe(target);
+    backup.stdout.pipe(zlib.createGzip()).pipe(target);
     await pEvent(target as Emitter<any, any>, "finish");
 
     const databases = (await execa("mysql", [
@@ -140,14 +141,14 @@ async function convertToSQL(options: IExtractOptions) {
       .filter((database) => dontBackupDatabases.indexOf(database) < 0);
 
     for (const database of databases) {
-      const databaseTarget = fs.createWriteStream(path.join(options.tempDirectory, database + ".sql"));
+      const databaseTarget = fs.createWriteStream(path.join(options.tempDirectory, database + ".sql.gz"));
       const databaseBackup = execa("mysqldump", [
         "--databases",
         database,
         `-u${options.mysqlUser}`,
         `-p${options.mysqlPassword}`,
       ]);
-      databaseBackup.stdout.pipe(databaseTarget);
+      databaseBackup.stdout.pipe(zlib.createGzip()).pipe(databaseTarget);
       await pEvent(databaseTarget as Emitter<any, any>, "finish");
     }
 
