@@ -1,34 +1,28 @@
 
+import { defaultBaseOptions, IBaseOptions } from "../base-options";
 import { consoleHr, printOptions } from "../lib/cli";
 import { setupGCloud } from "../lib/gcloud";
 import { runBackup } from "./backup";
 import { runClean } from "./clean";
 import { runSync } from "./sync";
-export interface IOptions {
+export interface IOptions extends IBaseOptions {
   mysqlDataDirectory: string;
   mysqlUser: string;
   mysqlPassword: string;
   mysqlHost: string;
   mysqlPort: string;
 
-  gcloudBackupPath: string;
-  gcloudServiceAccountFile?: string;
-  gcloudServiceAccountKey?: string;
-
   backupDirectory: string;
   backupMaxAge: number;
 }
 
 const defaultOptions: IOptions = {
+  ...defaultBaseOptions,
   mysqlDataDirectory: process.env.MYSQL_DATA_DIRECTORY || "/var/lib/mysql",
   mysqlHost: process.env.MYSQL_HOST || "127.0.0.1",
   mysqlPassword: process.env.MYSQL_PASSWORD || process.env.MYSQL_ROOT_PASSWORD || "",
   mysqlPort: process.env.MYSQL_PORT || "3306",
   mysqlUser: process.env.MYSQL_USER || "root",
-
-  gcloudBackupPath: process.env.GCLOUD_BACKUP_PATH || "",
-  gcloudServiceAccountFile: process.env.GCLOUD_SERVICE_ACCOUNT_FILE,
-  gcloudServiceAccountKey: process.env.GCLOUD_SERVICE_ACCOUNT_KEY,
 
   backupDirectory: process.env.BACKUP_DIRECTORY || "/backup",
   backupMaxAge: 2,

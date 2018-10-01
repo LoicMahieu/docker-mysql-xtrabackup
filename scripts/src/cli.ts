@@ -9,6 +9,9 @@ import { run as runPrepare } from "./prepare";
 yargs
   .usage("$0 <cmd> [args]")
 
+  .option("gcloudServiceAccountKey", { type: "string" })
+  .option("gcloudServiceAccountFile", { type: "string" })
+
   .command("backup", "Run backup", (cmdArgs: yargs.Argv) => {
     return cmdArgs
       .option("mysqlUser", { type: "string" })
@@ -17,8 +20,6 @@ yargs
       .option("mysqlPort", { type: "string" })
       .option("mysqlDataDirectory", { type: "string" })
 
-      .option("gcloudServiceAccountKey", { type: "string" })
-      .option("gcloudServiceAccountFile", { type: "string" })
       .option("gcloudBackupPath", { type: "string" })
 
       .option("backupDirectory", { type: "string" })
@@ -29,8 +30,6 @@ yargs
 
   .command("prepare", "Run prepare", (cmdArgs: yargs.Argv) => {
     return cmdArgs
-      .option("gcloudServiceAccountKey", { type: "string" })
-      .option("gcloudServiceAccountFile", { type: "string" })
       .option("gcloudBackupPath", { type: "string" });
   }, (args) => {
     runPrepare(args);
@@ -38,8 +37,6 @@ yargs
 
   .command("extract", "Run extract", (cmdArgs: yargs.Argv) => {
     return cmdArgs
-      .option("gcloudServiceAccountKey", { type: "string" })
-      .option("gcloudServiceAccountFile", { type: "string" })
       .option("gcloudBackupPath", { type: "string" });
   }, (args) => {
     runExtract(args);

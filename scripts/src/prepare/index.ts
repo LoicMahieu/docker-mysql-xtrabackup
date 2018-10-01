@@ -3,24 +3,21 @@ import execa from "execa";
 import fs from "fs-extra";
 import path from "path";
 import tempy from "tempy";
+import { defaultBaseOptions, IBaseOptions } from "../base-options";
 import { consoleHr, printOptions } from "../lib/cli";
 import { setupGCloud } from "../lib/gcloud";
 
-export interface IPrepareOptions {
+export interface IPrepareOptions extends IBaseOptions {
   tempDirectory: string;
 
-  gcloudBackupPath: string;
-  gcloudServiceAccountFile?: string;
-  gcloudServiceAccountKey?: string;
   gcloudTargetPath: string;
 }
 
 const defaultOptions: IPrepareOptions = {
+  ...defaultBaseOptions,
+
   tempDirectory: tempy.directory(),
 
-  gcloudBackupPath: process.env.GCLOUD_BACKUP_PATH || "",
-  gcloudServiceAccountFile: process.env.GCLOUD_SERVICE_ACCOUNT_FILE,
-  gcloudServiceAccountKey: process.env.GCLOUD_SERVICE_ACCOUNT_KEY,
   gcloudTargetPath: process.env.GCLOUD_TARGET_PATH || "",
 };
 

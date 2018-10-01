@@ -5,6 +5,7 @@ import pEvent, { Emitter } from "p-event";
 import path from "path";
 import tempy from "tempy";
 import zlib from "zlib";
+import { defaultBaseOptions, IBaseOptions } from "../base-options";
 import { consoleHr, printOptions } from "../lib/cli";
 import { setupGCloud } from "../lib/gcloud";
 
@@ -17,29 +18,25 @@ const dontBackupDatabases = [
   "innodb",
 ];
 
-export interface IExtractOptions {
+export interface IExtractOptions extends IBaseOptions {
   mysqlDataDirectory: string;
   mysqlUser: string;
   mysqlPassword: string;
 
   tempDirectory: string;
 
-  gcloudBackupPath: string;
-  gcloudServiceAccountFile?: string;
-  gcloudServiceAccountKey?: string;
   gcloudTargetPath: string;
 }
 
 const defaultOptions: IExtractOptions = {
+  ...defaultBaseOptions,
+
   mysqlDataDirectory: process.env.MYSQL_DATA_DIRECTORY || "/var/lib/mysql",
   mysqlPassword: process.env.MYSQL_PASSWORD || process.env.MYSQL_ROOT_PASSWORD || "",
   mysqlUser: process.env.MYSQL_USER || "root",
 
   tempDirectory: tempy.directory(),
 
-  gcloudBackupPath: process.env.GCLOUD_BACKUP_PATH || "",
-  gcloudServiceAccountFile: process.env.GCLOUD_SERVICE_ACCOUNT_FILE,
-  gcloudServiceAccountKey: process.env.GCLOUD_SERVICE_ACCOUNT_KEY,
   gcloudTargetPath: process.env.GCLOUD_TARGET_PATH || "",
 };
 
