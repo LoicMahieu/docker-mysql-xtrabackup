@@ -42,14 +42,8 @@ export async function run(options: any) {
 }
 
 function validateOptions(options: IExtractOptions) {
-  if (!options.gcloudBackupPath) {
-    throw new Error("Options `gcloudBackupPath` is mandatory.");
-  }
   if (!options.gcloudTargetPath) {
     throw new Error("Options `gcloudTargetPath` is mandatory.");
-  }
-  if (!options.gcloudServiceAccountKey && !options.gcloudServiceAccountFile) {
-    throw new Error("Options `gcloudServiceAccountKey` or `gcloudServiceAccountFile` is mandatory.");
   }
 }
 

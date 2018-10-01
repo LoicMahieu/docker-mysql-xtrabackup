@@ -17,8 +17,6 @@ export interface IOptions extends IBaseOptions {
 }
 
 export async function run(options: any) {
-  validateOptions(options);
-
   consoleHr();
   await setupGCloud(options);
   consoleHr();
@@ -28,13 +26,4 @@ export async function run(options: any) {
   consoleHr();
   await runSync(options);
   consoleHr();
-}
-
-function validateOptions(options: IOptions) {
-  if (!options.gcloudBackupPath) {
-    throw new Error("Options `gcloudBackupPath` is mandatory.");
-  }
-  if (!options.gcloudServiceAccountKey && !options.gcloudServiceAccountFile) {
-    throw new Error("Options `gcloudServiceAccountKey` or `gcloudServiceAccountFile` is mandatory.");
-  }
 }

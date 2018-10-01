@@ -4,6 +4,7 @@
 import tempy from "tempy";
 import yargs from "yargs";
 import { run as runBackup } from "./backup";
+import { validateOptions } from "./base-options";
 import { run as runExtract } from "./extract";
 import { consoleHr, printOptions } from "./lib/cli";
 import { triggerWebhook } from "./lib/webhook";
@@ -14,6 +15,7 @@ const createJob = (jobFn: (args: any) => Promise<any>) => async (args: any) => {
   printOptions(args);
   consoleHr();
   try {
+    validateOptions(args);
     await jobFn(args);
     console.log("Job succeed!");
 
