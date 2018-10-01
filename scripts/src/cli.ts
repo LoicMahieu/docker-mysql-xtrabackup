@@ -3,18 +3,22 @@ import * as yargs from "yargs";
 import { run } from ".";
 
 const argv =  yargs
-  .option("mysqlUser", {})
-  .option("mysqlRootPassword", {})
-  .option("mysqlHost", {})
-  .option("mysqlPort", {})
-  .option("mysqlDataDirectory", {})
+  .usage("$0 [args]")
 
-  .option("gcloudServiceAccountKey?", {})
-  .option("gcloudServiceAccountFile?", {})
-  .option("gcloudBackupPath", {})
+  .option("mysqlUser", { type: "string" })
+  .option("mysqlRootPassword", { type: "string" })
+  .option("mysqlHost", { type: "string" })
+  .option("mysqlPort", { type: "string" })
+  .option("mysqlDataDirectory", { type: "string" })
 
-  .option("backupDirectory", {})
-  .option("backupMaxAge", {})
+  .option("gcloudServiceAccountKey?", { type: "string" })
+  .option("gcloudServiceAccountFile?", { type: "string" })
+  .option("gcloudBackupPath", { type: "string" })
+
+  .option("backupDirectory", { type: "string" })
+  .option("backupMaxAge", { type: "string" })
+
+  .help()
   .argv;
 
 run(argv);
