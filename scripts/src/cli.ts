@@ -1,6 +1,7 @@
 
 /* tslint:disable no-unused-expression */
 
+import tempy from "tempy";
 import yargs from "yargs";
 import { run as runBackup } from "./backup";
 import { run as runExtract } from "./extract";
@@ -55,6 +56,22 @@ yargs
 
   .command("prepare", "Run prepare", (cmdArgs: yargs.Argv) => {
     return cmdArgs
+      .option("tempDirectory", {
+        default: () => tempy.directory(),
+        type: "string",
+      })
+
+      .option("gcloudTargetPath", {
+        default: process.env.GCLOUD_TARGET_PATH || "",
+        required: true,
+        type: "string",
+      });
+  }, (args) => {
+    runPrepare(args);
+  })
+
+  .command("extract", "Run extract", (cmdArgs: yargs.Argv) => {
+    return cmdArgs
       .option("mysqlDataDirectory", {
         default: process.env.MYSQL_DATA_DIRECTORY || "/var/lib/mysql",
         type: "string",
@@ -69,24 +86,12 @@ yargs
       })
 
       .option("tempDirectory", {
+        default: () => tempy.directory(),
         type: "string",
       })
 
-      .option("gcloudBackupPath", {
-        required: true,
-        type: "string",
-      });
-  }, (args) => {
-    runPrepare(args);
-  })
-
-  .command("extract", "Run extract", (cmdArgs: yargs.Argv) => {
-    return cmdArgs
-      .option("tempDirectory", {
-        type: "string",
-      })
-
-      .option("gcloudBackupPath", {
+      .option("gcloudTargetPath", {
+        default: process.env.GCLOUD_TARGET_PATH || "",
         required: true,
         type: "string",
       });
