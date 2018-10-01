@@ -1,6 +1,6 @@
 
 import { IBaseOptions } from "../base-options";
-import { consoleHr, printOptions } from "../lib/cli";
+import { consoleHr } from "../lib/cli";
 import { setupGCloud } from "../lib/gcloud";
 import { runBackup } from "./backup";
 import { runClean } from "./clean";
@@ -17,12 +17,8 @@ export interface IOptions extends IBaseOptions {
 }
 
 export async function run(options: any) {
-  console.time("job");
-
   validateOptions(options);
 
-  consoleHr();
-  printOptions(options);
   consoleHr();
   await setupGCloud(options);
   consoleHr();
@@ -32,9 +28,6 @@ export async function run(options: any) {
   consoleHr();
   await runSync(options);
   consoleHr();
-
-  console.log("Job finished!");
-  console.timeEnd("job");
 }
 
 function validateOptions(options: IOptions) {

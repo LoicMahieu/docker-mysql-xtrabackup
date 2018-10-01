@@ -5,7 +5,7 @@ import pEvent, { Emitter } from "p-event";
 import path from "path";
 import zlib from "zlib";
 import { IBaseOptions } from "../base-options";
-import { consoleHr, printOptions } from "../lib/cli";
+import { consoleHr } from "../lib/cli";
 import { setupGCloud } from "../lib/gcloud";
 
 const dontBackupDatabases = [
@@ -28,12 +28,8 @@ export interface IExtractOptions extends IBaseOptions {
 }
 
 export async function run(options: any) {
-  console.time("job");
-
   validateOptions(options);
 
-  consoleHr();
-  printOptions(options);
   consoleHr();
   await setupGCloud(options);
   consoleHr();
@@ -43,9 +39,6 @@ export async function run(options: any) {
   consoleHr();
   await upload(options);
   consoleHr();
-
-  console.log("Job finished!");
-  console.timeEnd("job");
 }
 
 function validateOptions(options: IExtractOptions) {

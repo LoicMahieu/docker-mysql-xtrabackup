@@ -3,7 +3,7 @@ import execa from "execa";
 import fs from "fs-extra";
 import path from "path";
 import { IBaseOptions } from "../base-options";
-import { consoleHr, printOptions } from "../lib/cli";
+import { consoleHr } from "../lib/cli";
 import { setupGCloud } from "../lib/gcloud";
 
 export interface IPrepareOptions extends IBaseOptions {
@@ -13,12 +13,8 @@ export interface IPrepareOptions extends IBaseOptions {
 }
 
 export async function run(options: any) {
-  console.time("job");
-
   validateOptions(options);
 
-  consoleHr();
-  printOptions(options);
   consoleHr();
   await setupGCloud(options);
   consoleHr();
@@ -28,9 +24,6 @@ export async function run(options: any) {
   consoleHr();
   await upload(options);
   consoleHr();
-
-  console.log("Job finished!");
-  console.timeEnd("job");
 }
 
 function validateOptions(options: IPrepareOptions) {

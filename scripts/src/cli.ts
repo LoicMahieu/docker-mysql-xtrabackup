@@ -5,6 +5,7 @@ import tempy from "tempy";
 import yargs from "yargs";
 import { run as runBackup } from "./backup";
 import { run as runExtract } from "./extract";
+import { printOptions } from "./lib/cli";
 import { run as runPrepare } from "./prepare";
 
 yargs
@@ -51,7 +52,11 @@ yargs
         type: "number",
       });
   }, (args) => {
+    console.time("job");
+    printOptions(args);
     runBackup(args);
+    console.log("Job finished!");
+    console.timeEnd("job");
   })
 
   .command("prepare", "Run prepare", (cmdArgs: yargs.Argv) => {
@@ -67,7 +72,11 @@ yargs
         type: "string",
       });
   }, (args) => {
+    console.time("job");
+    printOptions(args);
     runPrepare(args);
+    console.log("Job finished!");
+    console.timeEnd("job");
   })
 
   .command("extract", "Run extract", (cmdArgs: yargs.Argv) => {
@@ -96,7 +105,11 @@ yargs
         type: "string",
       });
   }, (args) => {
+    console.time("job");
+    printOptions(args);
     runExtract(args);
+    console.log("Job finished!");
+    console.timeEnd("job");
   })
 
   .help()
