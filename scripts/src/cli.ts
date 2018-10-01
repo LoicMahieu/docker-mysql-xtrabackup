@@ -1,5 +1,5 @@
 
-import * as yargs from "yargs";
+import yargs from "yargs";
 import { run } from ".";
 
 const argv =  yargs
@@ -20,5 +20,7 @@ const argv =  yargs
 
   .help()
   .argv;
+
+console.log(argv);
 
 run(argv);
