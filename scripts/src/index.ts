@@ -36,6 +36,7 @@ export async function run(args: any) {
   console.time("job");
 
   const options = createOptions(args);
+  validateOptions(options);
 
   await setupGCloud(options);
   await runBackup(options);
@@ -51,4 +52,10 @@ function createOptions(args: any): IOptions {
     ...defaultOptions,
     ...args,
   };
+}
+
+function validateOptions(options: IOptions) {
+  if (!options.gcloudBackupPath) {
+    throw new Error('Options `gcloudBackupPath` is mandatory.')
+  }
 }

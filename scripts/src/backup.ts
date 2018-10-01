@@ -18,7 +18,7 @@ export async function runBackup(options: IOptions) {
   const newIncrementalBackupDirectory = path.join(currentBackupDirectory, "inc-" + format(new Date(), "HH-mm-ss"));
 
   const xtrabackupBaseArgs = [
-    `--datadir=${options.dataDirectory}`,
+    `--datadir=${options.mysqlDataDirectory}`,
     `--user=${options.mysqlUser}`,
     `--password=${options.mysqlRootPassword}`,
     `--host=${options.mysqlHost}`,
