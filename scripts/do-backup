@@ -33,11 +33,16 @@ const xtrabackupBaseArgs = [
 run()
 
 async function run () {
+  console.time('job')
   await fs.ensureDir(BACKUP_DIRECTORY)
 
+  await setupGCloud()
   await runBackup()
   await runClean()
   await runSync()
+
+  console.log('Job finished!')
+  console.timeEnd('job')
 }
 
 async function runBackup () {
@@ -98,20 +103,20 @@ async function runClean () {
 }
 
 async function runSync () {
-  await execa('aws', 'configure set default.s3.max_concurrent_requests 2'.split(' '))
-  await execa('aws', 'configure set default.s3.max_bandwidth 50MB/s'.split(' '))
-  await execa('aws', [
-    's3',
-    'sync',
-    '--delete',
+  await execa('gsutil', [
+    'rsync',
+    '-d',
+    '-r',
     BACKUP_DIRECTORY,
-    S3_BACKUP_PATH
-  ], {
-    env: {
-      AWS_ACCESS_KEY_ID,
-      AWS_SECRET_ACCESS_KEY
-    }
-  })
+    GCLOUD_BACKUP_PATH
+  ], { stdio: 'inherit' })
+}
+
+async function setupGCloud () {
+  const keyFile = '/tmp/gcloud-service-account.key'
+  await fs.writeFile(keyFile, Buffer.from(GCLOUD_SERVICE_ACCOUNT_KEY, 'base64').toString())
+  await execa('gcloud', [ 'auth', 'activate-service-account', `--key-file=${keyFile}` ])
+  await fs.remove(keyFile)
 }
 
 async function findIncrementalLastBackup (directoryPath) {
