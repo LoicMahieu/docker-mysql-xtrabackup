@@ -17,6 +17,4 @@ const argv =  yargs
   .option("backupMaxAge", {})
   .argv;
 
-console.log(argv);
-
 run(argv);
