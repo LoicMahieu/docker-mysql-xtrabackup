@@ -107,7 +107,6 @@ async function convertToSQL(options: IExtractOptions) {
   mysql.stderr.on("data", (data) => {
     console.log("stderr:", data.toString());
     if (data.toString().indexOf("ready for connections") >= 0) {
-      console.log("READDDY!");
       mysql.stderr.emit("__ready__");
     }
   });
@@ -118,8 +117,9 @@ async function convertToSQL(options: IExtractOptions) {
 
   try {
     await pEvent(mysql.stderr, "__ready__");
-    console.log("mysql ready!");
+    console.log("MySQL is ready!");
 
+    console.log("Start mysql-dump for all databases...");
     const target = fs.createWriteStream(path.join(options.tempDirectory, "all-databases.sql.gz"));
     const backup = execa("mysqldump", [
       "--all-databases",
@@ -141,6 +141,7 @@ async function convertToSQL(options: IExtractOptions) {
       .filter((database) => dontBackupDatabases.indexOf(database) < 0);
 
     for (const database of databases) {
+      console.log(`Start mysql-dump for database "${database}" ...`);
       const databaseTarget = fs.createWriteStream(path.join(options.tempDirectory, database + ".sql.gz"));
       const databaseBackup = execa("mysqldump", [
         "--databases",
@@ -151,8 +152,6 @@ async function convertToSQL(options: IExtractOptions) {
       databaseBackup.stdout.pipe(zlib.createGzip()).pipe(databaseTarget);
       await pEvent(databaseTarget as Emitter<any, any>, "finish");
     }
-
-    console.log(databases);
   } finally {
     mysql.kill();
   }
