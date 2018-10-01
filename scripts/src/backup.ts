@@ -20,7 +20,7 @@ export async function runBackup(options: IOptions) {
   const xtrabackupBaseArgs = [
     `--datadir=${options.mysqlDataDirectory}`,
     `--user=${options.mysqlUser}`,
-    `--password=${options.mysqlRootPassword}`,
+    `--password=${options.mysqlPassword}`,
     `--host=${options.mysqlHost}`,
     `--port=${options.mysqlPort}`,
   ];

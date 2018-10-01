@@ -6,7 +6,7 @@ const argv =  yargs
   .usage("$0 [args]")
 
   .option("mysqlUser", { type: "string" })
-  .option("mysqlRootPassword", { type: "string" })
+  .option("mysqlPassword", { type: "string" })
   .option("mysqlHost", { type: "string" })
   .option("mysqlPort", { type: "string" })
   .option("mysqlDataDirectory", { type: "string" })
@@ -20,7 +20,5 @@ const argv =  yargs
 
   .help()
   .argv;
-
-console.log(argv);
 
 run(argv);

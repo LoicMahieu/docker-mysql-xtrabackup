@@ -7,7 +7,7 @@ import { runSync } from "./sync";
 export interface IOptions {
   mysqlDataDirectory: string;
   mysqlUser: string;
-  mysqlRootPassword: string;
+  mysqlPassword: string;
   mysqlHost: string;
   mysqlPort: string;
 
@@ -23,7 +23,7 @@ const defaultOptions: IOptions = {
   mysqlDataDirectory: process.env.MYSQL_DATA_DIRECTORY || "/var/lib/mysql",
   mysqlHost: process.env.MYSQL_HOST || "127.0.0.1",
   mysqlPort: process.env.MYSQL_PORT || "3306",
-  mysqlRootPassword: process.env.MYSQL_ROOT_PASSWORD || "",
+  mysqlPassword: process.env.MYSQL_PASSWORD || process.env.MYSQL_ROOT_PASSWORD || "",
   mysqlUser: process.env.MYSQL_USER || "root",
 
   gcloudBackupPath: process.env.GCLOUD_BACKUP_PATH || "",
