@@ -8,6 +8,20 @@ import { run as runExtract } from "./extract";
 import { printOptions } from "./lib/cli";
 import { run as runPrepare } from "./prepare";
 
+const createJob = (jobFn: (args: any) => Promise<any>) => async (args: any) => {
+  console.time("job");
+  printOptions(args);
+  try {
+    await jobFn(args);
+    console.log("Job succeed!");
+  } catch (err) {
+    console.error("Job failed!");
+    console.error(err);
+  } finally {
+    console.timeEnd("job");
+  }
+};
+
 yargs
   .usage("$0 <cmd> [args]")
 
@@ -51,13 +65,7 @@ yargs
         describe: "In day",
         type: "number",
       });
-  }, (args) => {
-    console.time("job");
-    printOptions(args);
-    runBackup(args);
-    console.log("Job finished!");
-    console.timeEnd("job");
-  })
+  }, createJob(runBackup))
 
   .command("prepare", "Run prepare", (cmdArgs: yargs.Argv) => {
     return cmdArgs
@@ -71,13 +79,7 @@ yargs
         required: true,
         type: "string",
       });
-  }, (args) => {
-    console.time("job");
-    printOptions(args);
-    runPrepare(args);
-    console.log("Job finished!");
-    console.timeEnd("job");
-  })
+  }, createJob(runPrepare))
 
   .command("extract", "Run extract", (cmdArgs: yargs.Argv) => {
     return cmdArgs
@@ -104,13 +106,7 @@ yargs
         required: true,
         type: "string",
       });
-  }, (args) => {
-    console.time("job");
-    printOptions(args);
-    runExtract(args);
-    console.log("Job finished!");
-    console.timeEnd("job");
-  })
+  }, createJob(runExtract))
 
   .help()
   .demandCommand(1, "You need at least one command")
