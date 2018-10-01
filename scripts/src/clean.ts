@@ -1,0 +1,36 @@
+
+import { addDays, isBefore, isValid, parse } from "date-fns";
+import fs from "fs-extra";
+import path from "path";
+import { IOptions } from ".";
+
+export async function runClean(options: IOptions) {
+  const files = await fs.readdir(options.backupDirectory);
+  const filteredFiles = filterBackupDirectories(files);
+
+  if (!filteredFiles.length) {
+    console.log("There no previous backup to clean.");
+  }
+
+  await Promise.all(filteredFiles.map(async (file) => {
+    const dirPath = path.join(options.backupDirectory, file);
+
+    console.log("Remove previous backup: " + dirPath);
+    await fs.remove(dirPath);
+  }));
+}
+
+function filterBackupDirectories(directories: string[]): string[] {
+  const maxDate = addDays(new Date(), -2);
+  const filteredDirectories = directories
+    .map((file) => {
+      const date = parse(file);
+      if (!isValid(date) && isBefore(date, maxDate)) {
+        return file;
+      } else {
+        return undefined;
+      }
+    });
+
+  return filteredDirectories.filter((element) => element !== undefined) as string[];
+}
