@@ -22,8 +22,8 @@ export interface IOptions {
 const defaultOptions: IOptions = {
   mysqlDataDirectory: process.env.MYSQL_DATA_DIRECTORY || "/var/lib/mysql",
   mysqlHost: process.env.MYSQL_HOST || "127.0.0.1",
-  mysqlPort: process.env.MYSQL_PORT || "3306",
   mysqlPassword: process.env.MYSQL_PASSWORD || process.env.MYSQL_ROOT_PASSWORD || "",
+  mysqlPort: process.env.MYSQL_PORT || "3306",
   mysqlUser: process.env.MYSQL_USER || "root",
 
   gcloudBackupPath: process.env.GCLOUD_BACKUP_PATH || "",
@@ -84,13 +84,13 @@ function consoleHr() {
 }
 
 function printOptions(options: IOptions) {
-  const keys = Object.keys(options) as Array<keyof IOptions>
+  const keys = Object.keys(options) as Array<keyof IOptions>;
   const protectedKeys = [
-    'gcloudServiceAccountKey',
-    'mysqlPassword',
-  ]
+    "gcloudServiceAccountKey",
+    "mysqlPassword",
+  ];
   keys.forEach((key) => {
-    const value = ~protectedKeys.indexOf(key) ? '******' : options[key]
+    const value = protectedKeys.indexOf(key) >= 0 ? "******" : options[key];
     console.log(`${key}: `, value);
-  })
+  });
 }
