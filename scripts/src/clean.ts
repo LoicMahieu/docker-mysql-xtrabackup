@@ -25,7 +25,7 @@ function filterBackupDirectories(options: IOptions, directories: string[]): stri
   const filteredDirectories = directories
     .filter((file) => {
       const date = parse(file);
-      return !isValid(date) && isBefore(date, maxDate);
+      return isValid(date) && isBefore(date, maxDate);
     });
   return filteredDirectories;
 }
