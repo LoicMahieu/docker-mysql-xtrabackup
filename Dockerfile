@@ -1,6 +1,6 @@
 FROM mysql:5.6
 
-ADD ./scripts /backup-scripts
+ADD . /root/xtrabackup-runner
 
 RUN apt-get update && \
     apt-get install -y curl wget lsb-release python python-pip trickle && \
@@ -21,13 +21,13 @@ RUN apt-get update && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
     apt-get update && apt-get install -y yarn && \
     echo "Install backup-scripts" && \
-    cd /backup-scripts && \
+    cd /root/xtrabackup-runner && \
     yarn install --pure-lockfile && \
     yarn build && \
     yarn install --production --pure-lockfile && \
-    chmod +x ./bin/xtrabackup-runner && \
+    chmod +x /root/xtrabackup-runner/bin/xtrabackup-runner && \
     echo "Clean" && \
     apt-get remove -y lsb-release wget curl yarn python-pip && \
     rm -rf /var/lib/apt/lists/*
 
-ENV PATH="$PATH:/root/google-cloud-sdk/bin"
+ENV PATH="$PATH:/root/google-cloud-sdk/bin:/root/xtrabackup-runner/bin"
