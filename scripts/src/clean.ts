@@ -6,7 +6,7 @@ import { IOptions } from ".";
 
 export async function runClean(options: IOptions) {
   const files = await fs.readdir(options.backupDirectory);
-  const filteredFiles = filterBackupDirectories(files);
+  const filteredFiles = filterBackupDirectories(options, files);
 
   if (!filteredFiles.length) {
     console.log("There no previous backup to clean.");
@@ -20,17 +20,12 @@ export async function runClean(options: IOptions) {
   }));
 }
 
-function filterBackupDirectories(directories: string[]): string[] {
-  const maxDate = addDays(new Date(), -2);
+function filterBackupDirectories(options: IOptions, directories: string[]): string[] {
+  const maxDate = addDays(new Date(), options.backupMaxAge * -1);
   const filteredDirectories = directories
-    .map((file) => {
+    .filter((file) => {
       const date = parse(file);
-      if (!isValid(date) && isBefore(date, maxDate)) {
-        return file;
-      } else {
-        return undefined;
-      }
+      return !isValid(date) && isBefore(date, maxDate);
     });
-
-  return filteredDirectories.filter((element) => element !== undefined) as string[];
+  return filteredDirectories;
 }

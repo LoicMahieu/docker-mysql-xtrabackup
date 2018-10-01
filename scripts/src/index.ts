@@ -16,6 +16,7 @@ export interface IOptions {
   gcloudBackupPath: string;
 
   backupDirectory: string;
+  backupMaxAge: number;
 }
 
 const defaultOptions: IOptions = {
@@ -30,6 +31,7 @@ const defaultOptions: IOptions = {
   gcloudBackupPath: process.env.GCLOUD_BACKUP_PATH || "",
 
   backupDirectory: process.env.BACKUP_DIRECTORY || "/backup",
+  backupMaxAge: 2,
 };
 
 export async function run(args: any) {
