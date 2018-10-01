@@ -17,8 +17,8 @@ yargs
       .option("mysqlPort", { type: "string" })
       .option("mysqlDataDirectory", { type: "string" })
 
-      .option("gcloudServiceAccountKey?", { type: "string" })
-      .option("gcloudServiceAccountFile?", { type: "string" })
+      .option("gcloudServiceAccountKey", { type: "string" })
+      .option("gcloudServiceAccountFile", { type: "string" })
       .option("gcloudBackupPath", { type: "string" })
 
       .option("backupDirectory", { type: "string" })
@@ -31,8 +31,8 @@ yargs
     return cmdArgs
       .positional("backupName", { type: "string" })
 
-      .option("gcloudServiceAccountKey?", { type: "string" })
-      .option("gcloudServiceAccountFile?", { type: "string" })
+      .option("gcloudServiceAccountKey", { type: "string" })
+      .option("gcloudServiceAccountFile", { type: "string" })
       .option("gcloudBackupPath", { type: "string" });
   }, (args) => {
     runPrepare(args);
@@ -42,8 +42,8 @@ yargs
     return cmdArgs
       .positional("backupName", { type: "string" })
 
-      .option("gcloudServiceAccountKey?", { type: "string" })
-      .option("gcloudServiceAccountFile?", { type: "string" })
+      .option("gcloudServiceAccountKey", { type: "string" })
+      .option("gcloudServiceAccountFile", { type: "string" })
       .option("gcloudBackupPath", { type: "string" });
   }, (args) => {
     runExtract(args);
