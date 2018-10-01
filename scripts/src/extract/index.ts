@@ -22,7 +22,6 @@ export interface IExtractOptions {
   mysqlUser: string;
   mysqlPassword: string;
 
-  backupName: string;
   tempDirectory: string;
 
   gcloudBackupPath: string;
@@ -36,7 +35,6 @@ const defaultOptions: IExtractOptions = {
   mysqlPassword: process.env.MYSQL_PASSWORD || process.env.MYSQL_ROOT_PASSWORD || "",
   mysqlUser: process.env.MYSQL_USER || "root",
 
-  backupName: "",
   tempDirectory: tempy.directory(),
 
   gcloudBackupPath: process.env.GCLOUD_BACKUP_PATH || "",
@@ -75,9 +73,6 @@ function createOptions(args: any): IExtractOptions {
 }
 
 function validateOptions(options: IExtractOptions) {
-  if (!options.backupName) {
-    throw new Error("Options `backupName` is mandatory.");
-  }
   if (!options.gcloudBackupPath) {
     throw new Error("Options `gcloudBackupPath` is mandatory.");
   }
@@ -96,7 +91,7 @@ async function downloadBackups(options: IExtractOptions) {
     "rsync",
     "-d",
     "-r",
-    options.gcloudBackupPath + "/" + options.backupName,
+    options.gcloudBackupPath,
     options.mysqlDataDirectory,
   ], { stdio: "inherit" });
 }

@@ -7,7 +7,6 @@ import { consoleHr, printOptions } from "../lib/cli";
 import { setupGCloud } from "../lib/gcloud";
 
 export interface IPrepareOptions {
-  backupName: string;
   tempDirectory: string;
 
   gcloudBackupPath: string;
@@ -17,7 +16,6 @@ export interface IPrepareOptions {
 }
 
 const defaultOptions: IPrepareOptions = {
-  backupName: "",
   tempDirectory: tempy.directory(),
 
   gcloudBackupPath: process.env.GCLOUD_BACKUP_PATH || "",
@@ -56,9 +54,6 @@ function createOptions(args: any): IPrepareOptions {
 }
 
 function validateOptions(options: IPrepareOptions) {
-  if (!options.backupName) {
-    throw new Error("Options `backupName` is mandatory.");
-  }
   if (!options.gcloudBackupPath) {
     throw new Error("Options `gcloudBackupPath` is mandatory.");
   }
@@ -77,7 +72,7 @@ async function downloadBackups(options: IPrepareOptions) {
     "rsync",
     "-d",
     "-r",
-    options.gcloudBackupPath + "/" + options.backupName,
+    options.gcloudBackupPath,
     options.tempDirectory,
   ], { stdio: "inherit" });
 }

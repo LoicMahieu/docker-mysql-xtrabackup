@@ -27,10 +27,8 @@ yargs
     runBackup(args);
   })
 
-  .command("prepare <backupName>", "Run prepare", (cmdArgs: yargs.Argv) => {
+  .command("prepare", "Run prepare", (cmdArgs: yargs.Argv) => {
     return cmdArgs
-      .positional("backupName", { type: "string" })
-
       .option("gcloudServiceAccountKey", { type: "string" })
       .option("gcloudServiceAccountFile", { type: "string" })
       .option("gcloudBackupPath", { type: "string" });
@@ -38,10 +36,8 @@ yargs
     runPrepare(args);
   })
 
-  .command("extract <backupName>", "Run extract", (cmdArgs: yargs.Argv) => {
+  .command("extract", "Run extract", (cmdArgs: yargs.Argv) => {
     return cmdArgs
-      .positional("backupName", { type: "string" })
-
       .option("gcloudServiceAccountKey", { type: "string" })
       .option("gcloudServiceAccountFile", { type: "string" })
       .option("gcloudBackupPath", { type: "string" });
