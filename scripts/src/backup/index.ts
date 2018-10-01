@@ -1,5 +1,5 @@
 
-import { defaultBaseOptions, IBaseOptions } from "../base-options";
+import { IBaseOptions } from "../base-options";
 import { consoleHr, printOptions } from "../lib/cli";
 import { setupGCloud } from "../lib/gcloud";
 import { runBackup } from "./backup";
@@ -16,22 +16,9 @@ export interface IOptions extends IBaseOptions {
   backupMaxAge: number;
 }
 
-const defaultOptions: IOptions = {
-  ...defaultBaseOptions,
-  mysqlDataDirectory: process.env.MYSQL_DATA_DIRECTORY || "/var/lib/mysql",
-  mysqlHost: process.env.MYSQL_HOST || "127.0.0.1",
-  mysqlPassword: process.env.MYSQL_PASSWORD || process.env.MYSQL_ROOT_PASSWORD || "",
-  mysqlPort: process.env.MYSQL_PORT || "3306",
-  mysqlUser: process.env.MYSQL_USER || "root",
-
-  backupDirectory: process.env.BACKUP_DIRECTORY || "/backup",
-  backupMaxAge: 2,
-};
-
-export async function run(args: any) {
+export async function run(options: any) {
   console.time("job");
 
-  const options = createOptions(args);
   validateOptions(options);
 
   consoleHr();
@@ -48,13 +35,6 @@ export async function run(args: any) {
 
   console.log("Job finished!");
   console.timeEnd("job");
-}
-
-function createOptions(args: any): IOptions {
-  return {
-    ...defaultOptions,
-    ...args,
-  };
 }
 
 function validateOptions(options: IOptions) {

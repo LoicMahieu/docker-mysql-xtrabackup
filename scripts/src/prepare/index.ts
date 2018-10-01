@@ -2,8 +2,7 @@
 import execa from "execa";
 import fs from "fs-extra";
 import path from "path";
-import tempy from "tempy";
-import { defaultBaseOptions, IBaseOptions } from "../base-options";
+import { IBaseOptions } from "../base-options";
 import { consoleHr, printOptions } from "../lib/cli";
 import { setupGCloud } from "../lib/gcloud";
 
@@ -13,18 +12,9 @@ export interface IPrepareOptions extends IBaseOptions {
   gcloudTargetPath: string;
 }
 
-const defaultOptions: IPrepareOptions = {
-  ...defaultBaseOptions,
-
-  tempDirectory: tempy.directory(),
-
-  gcloudTargetPath: process.env.GCLOUD_TARGET_PATH || "",
-};
-
-export async function run(args: any) {
+export async function run(options: any) {
   console.time("job");
 
-  const options = createOptions(args);
   validateOptions(options);
 
   consoleHr();
@@ -41,13 +31,6 @@ export async function run(args: any) {
 
   console.log("Job finished!");
   console.timeEnd("job");
-}
-
-function createOptions(args: any): IPrepareOptions {
-  return {
-    ...defaultOptions,
-    ...args,
-  };
 }
 
 function validateOptions(options: IPrepareOptions) {
