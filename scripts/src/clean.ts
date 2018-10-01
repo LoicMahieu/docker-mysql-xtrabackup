@@ -8,6 +8,12 @@ export async function runClean(options: IOptions) {
   const files = await fs.readdir(options.backupDirectory);
   const filteredFiles = filterBackupDirectories(options, files);
 
+  console.log("Found previous backup:");
+  files.forEach((file) => {
+    const shouldDelete = filteredFiles.indexOf(file) >= 0;
+    console.log((shouldDelete ? "[DEL]" : "[KEEP]") + " " + file);
+  });
+
   if (!filteredFiles.length) {
     console.log("There no previous backup to clean.");
   }
