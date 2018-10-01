@@ -5,12 +5,13 @@ import tempy from "tempy";
 import yargs from "yargs";
 import { run as runBackup } from "./backup";
 import { run as runExtract } from "./extract";
-import { printOptions } from "./lib/cli";
+import { consoleHr, printOptions } from "./lib/cli";
 import { run as runPrepare } from "./prepare";
 
 const createJob = (jobFn: (args: any) => Promise<any>) => async (args: any) => {
   console.time("job");
   printOptions(args);
+  consoleHr();
   try {
     await jobFn(args);
     console.log("Job succeed!");

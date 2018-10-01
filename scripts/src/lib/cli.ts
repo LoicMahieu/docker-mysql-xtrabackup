@@ -4,9 +4,6 @@ export function consoleHr() {
   console.log("");
   console.log("");
   console.log("");
-  console.log("");
-  console.log("");
-  console.log("");
   console.log("========================================================================================");
 }
 
