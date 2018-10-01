@@ -1,8 +1,11 @@
 
-import yargs from "yargs";
-import { run } from "./backup";
+/* tslint:disable no-unused-expression */
 
-const argv =  yargs
+import yargs from "yargs";
+import { run as runBackup } from "./backup";
+import { run as runPrepare } from "./prepare";
+
+yargs
   .usage("$0 <cmd> [args]")
 
   .command("backup", "Run backup", (cmdArgs: yargs.Argv) => {
@@ -19,9 +22,21 @@ const argv =  yargs
 
       .option("backupDirectory", { type: "string" })
       .option("backupMaxAge", { type: "string" });
+  }, (args) => {
+    runBackup(args);
   })
 
-  .help()
-  .argv;
+  .command("prepare <backupName>", "Run prepare", (cmdArgs: yargs.Argv) => {
+    return cmdArgs
+      .positional("backupName", { type: "string" })
 
-run(argv);
+      .option("gcloudServiceAccountKey?", { type: "string" })
+      .option("gcloudServiceAccountFile?", { type: "string" })
+      .option("gcloudBackupPath", { type: "string" });
+  }, (args) => {
+    runPrepare(args);
+  })
+  .help()
+  .demandCommand(1, "You need at least one command before moving on")
+  .showHelpOnFail(true)
+  .argv;

@@ -1,9 +1,9 @@
 
+import { consoleHr, printOptions } from "../lib/cli";
+import { setupGCloud } from "../lib/gcloud";
 import { runBackup } from "./backup";
 import { runClean } from "./clean";
-import { setupGCloud } from "./gcloud";
 import { runSync } from "./sync";
-
 export interface IOptions {
   mysqlDataDirectory: string;
   mysqlUser: string;
@@ -70,27 +70,4 @@ function validateOptions(options: IOptions) {
   if (!options.gcloudServiceAccountKey && !options.gcloudServiceAccountFile) {
     throw new Error("Options `gcloudServiceAccountKey` or `gcloudServiceAccountFile` is mandatory.");
   }
-}
-
-function consoleHr() {
-  console.log("========================================================================================");
-  console.log("");
-  console.log("");
-  console.log("");
-  console.log("");
-  console.log("");
-  console.log("");
-  console.log("========================================================================================");
-}
-
-function printOptions(options: IOptions) {
-  const keys = Object.keys(options) as Array<keyof IOptions>;
-  const protectedKeys = [
-    "gcloudServiceAccountKey",
-    "mysqlPassword",
-  ];
-  keys.forEach((key) => {
-    const value = protectedKeys.indexOf(key) >= 0 ? "******" : options[key];
-    console.log(`${key}: `, value);
-  });
 }
