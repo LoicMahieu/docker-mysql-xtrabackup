@@ -22,8 +22,10 @@ RUN apt-get update && \
     apt-get update && apt-get install -y yarn && \
     echo "Install backup-scripts" && \
     cd /backup-scripts && \
+    yarn install --pure-lockfile && \
+    yarn build && \
     yarn install --production --pure-lockfile && \
-    chmod +x do-backup && \
+    chmod +x ./bin/xtrabackup-runner && \
     echo "Clean" && \
     apt-get remove -y lsb-release wget curl yarn python-pip && \
     rm -rf /var/lib/apt/lists/*

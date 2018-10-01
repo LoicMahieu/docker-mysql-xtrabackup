@@ -40,6 +40,9 @@ export async function run(args: any) {
   const options = createOptions(args);
   validateOptions(options);
 
+  consoleHr();
+  printOptions(options);
+  consoleHr();
   await setupGCloud(options);
   consoleHr();
   await runBackup(options);
@@ -78,4 +81,16 @@ function consoleHr() {
   console.log("");
   console.log("");
   console.log("========================================================================================");
+}
+
+function printOptions(options: IOptions) {
+  const keys = Object.keys(options) as Array<keyof IOptions>
+  const protectedKeys = [
+    'gcloudServiceAccountKey',
+    'mysqlPassword',
+  ]
+  keys.forEach((key) => {
+    const value = ~protectedKeys.indexOf(key) ? '******' : options[key]
+    console.log(`${key}: `, value);
+  })
 }
