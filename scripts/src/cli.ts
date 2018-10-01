@@ -6,6 +6,7 @@ import yargs from "yargs";
 import { run as runBackup } from "./backup";
 import { run as runExtract } from "./extract";
 import { consoleHr, printOptions } from "./lib/cli";
+import { triggerWebhook } from "./lib/webhook";
 import { run as runPrepare } from "./prepare";
 
 const createJob = (jobFn: (args: any) => Promise<any>) => async (args: any) => {
@@ -15,6 +16,10 @@ const createJob = (jobFn: (args: any) => Promise<any>) => async (args: any) => {
   try {
     await jobFn(args);
     console.log("Job succeed!");
+
+    if (args.postJobSuccessWebhook) {
+      await triggerWebhook(args.postJobSuccessWebhook);
+    }
   } catch (err) {
     console.error("Job failed!");
     console.error(err);
@@ -31,6 +36,10 @@ yargs
     type: "string",
   })
   .option("gcloudServiceAccountFile", {
+    type: "string",
+  })
+
+  .option("postJobSuccessWebhook", {
     type: "string",
   })
 
