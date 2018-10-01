@@ -1,6 +1,7 @@
 
 import execa from "execa";
 import fs from "fs-extra";
+import path from "path";
 import tempy from "tempy";
 import { consoleHr, printOptions } from "../lib/cli";
 import { setupGCloud } from "../lib/gcloud";
@@ -9,18 +10,20 @@ export interface IPrepareOptions {
   backupName: string;
   tempDirectory: string;
 
-  gcloudBackupPath?: string;
+  gcloudBackupPath: string;
   gcloudServiceAccountFile?: string;
   gcloudServiceAccountKey?: string;
+  gcloudTargetPath: string;
 }
 
 const defaultOptions: IPrepareOptions = {
   backupName: "",
   tempDirectory: tempy.directory(),
 
-  gcloudBackupPath: process.env.GCLOUD_BACKUP_PATH,
+  gcloudBackupPath: process.env.GCLOUD_BACKUP_PATH || "",
   gcloudServiceAccountFile: process.env.GCLOUD_SERVICE_ACCOUNT_FILE,
   gcloudServiceAccountKey: process.env.GCLOUD_SERVICE_ACCOUNT_KEY,
+  gcloudTargetPath: process.env.GCLOUD_TARGET_PATH || "",
 };
 
 export async function run(args: any) {
@@ -37,6 +40,8 @@ export async function run(args: any) {
   await downloadBackups(options);
   consoleHr();
   await prepare(options);
+  consoleHr();
+  await upload(options);
   consoleHr();
 
   console.log("Job finished!");
@@ -57,6 +62,9 @@ function validateOptions(options: IPrepareOptions) {
   if (!options.gcloudBackupPath) {
     throw new Error("Options `gcloudBackupPath` is mandatory.");
   }
+  if (!options.gcloudTargetPath) {
+    throw new Error("Options `gcloudTargetPath` is mandatory.");
+  }
   if (!options.gcloudServiceAccountKey && !options.gcloudServiceAccountFile) {
     throw new Error("Options `gcloudServiceAccountKey` or `gcloudServiceAccountFile` is mandatory.");
   }
@@ -65,6 +73,7 @@ function validateOptions(options: IPrepareOptions) {
 async function downloadBackups(options: IPrepareOptions) {
   await fs.ensureDir(options.tempDirectory);
   await execa("gsutil", [
+    "-m",
     "rsync",
     "-d",
     "-r",
@@ -75,5 +84,34 @@ async function downloadBackups(options: IPrepareOptions) {
 
 async function prepare(options: IPrepareOptions) {
   const files = await fs.readdir(options.tempDirectory);
-  console.log(files);
+  const incrementals = files.filter((file) => file.match(/^inc-/));
+  const fullDir = path.join(options.tempDirectory, "full");
+
+  console.log("Start apply log on FULL");
+  await xtraBackupPrepare(fullDir);
+  for (const incremental of incrementals) {
+    console.log("Start apply log on incremental: " + incremental);
+    await xtraBackupPrepare(fullDir, path.join(options.tempDirectory, incremental));
+  }
+}
+
+async function xtraBackupPrepare(targetDir: string, incrementalDir?: string) {
+  await execa("xtrabackup", [
+    "--prepare",
+    "--apply-log-only",
+    `--target-dir=${targetDir}`,
+    !incrementalDir ? "" : `--incremental-dir=${incrementalDir}`,
+  ].filter(Boolean), { stdio: "inherit" });
+}
+
+export async function upload(options: IPrepareOptions) {
+  const fullDir = path.join(options.tempDirectory, "full");
+  await execa("gsutil", [
+    "-m",
+    "rsync",
+    "-d",
+    "-r",
+    fullDir,
+    options.gcloudTargetPath,
+  ], { stdio: "inherit" });
 }
