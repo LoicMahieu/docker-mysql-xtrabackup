@@ -23,7 +23,9 @@ const createJob = (jobFn: (args: any) => Promise<any>) => async (args: any) => {
     console.log("Job succeed!");
 
     if (args.postJobSuccessWebhook) {
-      await triggerWebhook(args.postJobSuccessWebhook);
+      await triggerWebhook(args.postJobSuccessWebhook, {
+        method: args.postJobSuccessWebhookMethod,
+      });
     }
   } catch (err) {
     console.error("Job failed!");
