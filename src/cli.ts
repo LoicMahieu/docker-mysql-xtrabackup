@@ -31,10 +31,9 @@ const createJob = (jobFn: (args: any) => Promise<any>) => async (args: any) => {
     console.error("Job failed!");
     console.error(err);
     inError = true;
-  } finally {
-    console.timeEnd("job");
   }
 
+  console.timeEnd("job");
   process.exit(inError ? 1 : 0);
 };
 
