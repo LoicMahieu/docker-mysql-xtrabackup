@@ -24,6 +24,9 @@ export async function runBackup(options: IOptions) {
     `--host=${options.mysqlHost}`,
     `--port=${options.mysqlPort}`,
   ];
+  if (options.xtrabackupDatabasesExclude) {
+    xtrabackupBaseArgs.push(`--databases-exclude=${options.xtrabackupDatabasesExclude.join(" ")}`);
+  }
 
   if (lastIncBackup) {
     console.log("Found a previous incremental backup: " + lastIncBackup);

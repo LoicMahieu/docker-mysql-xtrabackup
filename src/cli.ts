@@ -89,6 +89,11 @@ yargs
       describe: "In day",
       type: "number",
     })
+
+    .option("xtrabackupDatabasesExclude", {
+      default: [],
+      type: "array",
+    })
   , createJob(runBackup))
 
   .command("prepare", "Run prepare", (cmdArgs: yargs.Argv) => cmdArgs

@@ -14,6 +14,8 @@ export interface IOptions extends IBaseOptions {
 
   backupDirectory: string;
   backupMaxAge: number;
+
+  xtrabackupDatabasesExclude?: string[];
 }
 
 export async function run(options: any) {
