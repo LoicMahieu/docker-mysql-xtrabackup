@@ -1,9 +1,14 @@
+FROM node:10.10.0 as build
+
+ADD . /build
+WORKDIR /build
+RUN yarn install --pure-lockfile
+RUN yarn build
+
 FROM mysql:5.6
 
-ADD . /root/xtrabackup-runner
-
 RUN apt-get update && \
-    apt-get install -y curl wget lsb-release python python-pip trickle && \
+    apt-get install -y curl wget lsb-release python python-pip && \
     echo "Install Percona XtraBackup" && \
     wget https://repo.percona.com/apt/percona-release_0.1-6.$(lsb_release -sc)_all.deb && \
     dpkg -i percona-release_0.1-6.$(lsb_release -sc)_all.deb && \
@@ -11,23 +16,17 @@ RUN apt-get update && \
     apt-get update && \
     apt-get install -y percona-xtrabackup-24 && \
     echo "Install Google Cloud SDK" && \
-    curl https://sdk.cloud.google.com | bash && \
+    echo "deb http://packages.cloud.google.com/apt cloud-sdk-$(lsb_release -c -s) main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
+    apt-get update && apt-get install -y google-cloud-sdk && \
     echo "Install crc mod for gsutil" && \
     pip install crcmod && \
     echo "Install Node.js" && \
-    curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
-    echo "Install yarn" && \
-    curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
-    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
-    apt-get update && apt-get install -y yarn && \
-    echo "Install backup-scripts" && \
-    cd /root/xtrabackup-runner && \
-    yarn install --pure-lockfile && \
-    yarn build && \
-    yarn install --production --pure-lockfile && \
-    chmod +x /root/xtrabackup-runner/bin/xtrabackup-runner && \
+    curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
+    apt-get install -y nodejs && \
     echo "Clean" && \
-    apt-get remove -y lsb-release wget curl yarn python-pip && \
+    apt-get remove -y lsb-release wget curl python-pip && \
     rm -rf /var/lib/apt/lists/*
+ENV PATH="$PATH:/root/google-cloud-sdk/bin"
 
-ENV PATH="$PATH:/root/google-cloud-sdk/bin:/root/xtrabackup-runner/bin"
+COPY --from=build /build/bin/xtrabackup-runner /usr/local/bin/xtrabackup-runner

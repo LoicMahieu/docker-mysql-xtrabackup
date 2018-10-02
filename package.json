@@ -2,9 +2,11 @@
   "name": "scripts",
   "version": "1.0.5",
   "description": "",
-  "main": "index.js",
+  "bin": {
+    "xtrabackup-runner": "./bin/xtrabackup-runner"
+  },
   "scripts": {
-    "build": "rollup -c",
+    "build": "rollup -c && chmod +x ./bin/xtrabackup-runner",
     "lint": "tslint -p .",
     "test": "yarn build && ./bin/xtrabackup-runner --help"
   },
