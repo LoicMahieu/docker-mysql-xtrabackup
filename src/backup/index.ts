@@ -20,10 +20,14 @@ export async function run(options: any) {
   consoleHr();
   await setupGCloud(options);
   consoleHr();
-  await runBackup(options);
+  const backupName = await runBackup(options);
   consoleHr();
   await runClean(options);
   consoleHr();
   await runSync(options);
   consoleHr();
+
+  return {
+    backupName,
+  };
 }

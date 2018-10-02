@@ -52,6 +52,8 @@ export async function runBackup(options: IOptions) {
       `--target-dir=${fullBackupDirectory}`,
     ]);
   }
+
+  return backupName;
 }
 
 async function findIncrementalLastBackup(directoryPath: string) {
