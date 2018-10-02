@@ -14,6 +14,9 @@ const createJob = (jobFn: (args: any) => Promise<any>) => async (args: any) => {
   console.time("job");
   printOptions(args);
   consoleHr();
+
+  let inError = false;
+
   try {
     validateOptions(args);
     await jobFn(args);
@@ -25,9 +28,12 @@ const createJob = (jobFn: (args: any) => Promise<any>) => async (args: any) => {
   } catch (err) {
     console.error("Job failed!");
     console.error(err);
+    inError = true;
   } finally {
     console.timeEnd("job");
   }
+
+  process.exit(inError ? 1 : 0);
 };
 
 yargs
@@ -42,6 +48,10 @@ yargs
   })
 
   .option("postJobSuccessWebhook", {
+    type: "string",
+  })
+  .option("postJobSuccessWebhookMethod", {
+    default: "POST",
     type: "string",
   })
 
