@@ -60,7 +60,7 @@ async function downloadBackups(options: IExtractOptions) {
 }
 
 async function convertToSQL(options: IExtractOptions) {
-  const mysql = execa("mysqld", ["-uroot"]);
+  const mysql = execa("mysqld", ["-uroot", `--datadir=${options.mysqlDataDirectory}`]);
 
   mysql.stderr.on("data", (data) => {
     console.log("stderr:", data.toString());
