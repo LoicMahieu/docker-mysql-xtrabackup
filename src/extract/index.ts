@@ -83,7 +83,8 @@ async function convertToSQL(options: IExtractOptions) {
       "--all-databases",
       `-u${options.mysqlUser}`,
       `-p${options.mysqlPassword}`,
-    ], { stdio: "inherit" });
+    ]);
+    backup.stderr.pipe(process.stderr);
     backup.stdout.pipe(zlib.createGzip()).pipe(target);
     await pEvent(target as Emitter<any, any>, "finish");
 
@@ -94,7 +95,7 @@ async function convertToSQL(options: IExtractOptions) {
       "-N",
       "-e",
       "SHOW DATABASES",
-    ], { stdio: "inherit" }))
+    ]))
       .stdout.split("\n")
       .filter((database) => dontBackupDatabases.indexOf(database) < 0);
 
@@ -107,6 +108,7 @@ async function convertToSQL(options: IExtractOptions) {
         `-u${options.mysqlUser}`,
         `-p${options.mysqlPassword}`,
       ]);
+      databaseBackup.stderr.pipe(process.stderr);
       databaseBackup.stdout.pipe(zlib.createGzip()).pipe(databaseTarget);
       await pEvent(databaseTarget as Emitter<any, any>, "finish");
     }
