@@ -6,6 +6,7 @@ import yargs from "yargs";
 import { run as runBackup } from "./backup";
 import { list as backupList } from "./backupList";
 import { validateOptions } from "./base-options";
+import { clean } from "./clean";
 import { run as runExtract } from "./extract";
 import { consoleHr, printOptions } from "./lib/cli";
 import { log } from "./lib/log";
@@ -62,11 +63,18 @@ yargs
     type: "string",
   })
 
+  .command("clean", "", (cmdArgs: yargs.Argv) =>
+    cmdArgs
+      .option("backupMaxAge", {
+        default: 2,
+        describe: "In day",
+        type: "number",
+      })
+  , createJob(clean))
+
   .command("backup", "", (cmdArgs: yargs.Argv) =>
     cmdArgs
-      .command("list", "List backups", (listArgs: yargs.Argv) =>
-        listArgs.option("host", {})
-      , createJob(backupList))
+      .command("list", "List backups", (runArgs: yargs.Argv) => runArgs, createJob(backupList))
       .command(["$0", "run"], "Run backup", (runArgs: yargs.Argv) =>
         runArgs.option("mysqlDataDirectory", {
           default: process.env.MYSQL_DATA_DIRECTORY || "/var/lib/mysql",
