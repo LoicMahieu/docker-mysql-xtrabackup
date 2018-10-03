@@ -47,7 +47,7 @@ yargs
 
   .option("gcloudBackupPath", { type: "string", required: true })
   .option("gcloudServiceAccountKey", {
-    default: process.env.GCLOUD_SERVICE_ACCOUNT_KEY,
+    default: () => process.env.GCLOUD_SERVICE_ACCOUNT_KEY,
     type: "string",
   })
   .option("gcloudServiceAccountFile", {
