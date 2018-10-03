@@ -6,6 +6,7 @@ import path from "path";
 import tempy from "tempy";
 import url from "url";
 import { IOptions } from "../backup";
+import { log } from "./log";
 
 interface ISetupGCloudOptions {
   gcloudServiceAccountFile?: string;
@@ -40,7 +41,7 @@ function createBucket(options: IOptions) {
 
 export async function deleteDirectory(options: IOptions, directory: string) {
   const { bucket, bucketName, prefix } = createBucket(options);
-  console.log("Delete directory gs://%s/%s", bucketName, path.join(prefix, directory));
+  log("Delete directory gs://%s/%s", bucketName, path.join(prefix, directory));
   await bucket.deleteFiles({
     prefix: path.join(prefix, directory),
   });
