@@ -1,16 +1,17 @@
 
 import fetch from "node-fetch";
+import { log } from "./log";
 
 interface IVariables {
   [s: string]: string;
 }
 
 export async function triggerWebhook(webhook: string, options?: object, variables?: IVariables) {
-  console.log("Trigger webhook", webhook);
+  log("Trigger webhook", webhook);
   try {
     const webhookUri = template(webhook, variables);
     const result = await fetch(webhookUri, options);
-    console.log("Webhook result with statusCode = ", result.status);
+    log("Webhook result with statusCode = ", result.status + "");
   } catch (err) {
     console.error("Error during webhook");
     console.error(err);

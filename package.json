@@ -6,9 +6,9 @@
     "xtrabackup-runner": "./bin/xtrabackup-runner"
   },
   "scripts": {
-    "build": "rollup -c && chmod +x ./bin/xtrabackup-runner",
+    "build": "tsc && rollup -c && chmod +x ./bin/xtrabackup-runner",
     "lint": "tslint -p .",
-    "test": "yarn build && ./bin/xtrabackup-runner --help"
+    "test": "yarn build && yarn install --production --pure-lockfile && ./bin/xtrabackup-runner --help"
   },
   "author": "",
   "license": "ISC",
@@ -23,6 +23,7 @@
     "@types/yargs": "^12.0.1",
     "date-fns": "^1.29.0",
     "execa": "^1.0.0",
+    "fast-crc32c": "^1.0.4",
     "fs-extra": "^7.0.0",
     "node-fetch": "^2.2.0",
     "p-event": "^2.1.0",
@@ -36,5 +37,8 @@
     "tslint": "^5.11.0",
     "typescript": "^3.1.1",
     "yargs": "^12.0.2"
+  },
+  "dependencies": {
+    "@google-cloud/storage": "git+https://github.com/LoicMahieu/nodejs-storage.git#build"
   }
 }

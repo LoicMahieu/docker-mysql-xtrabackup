@@ -4,14 +4,16 @@
 import tempy from "tempy";
 import yargs from "yargs";
 import { run as runBackup } from "./backup";
+import { list as backupList } from "./backupList";
 import { validateOptions } from "./base-options";
 import { run as runExtract } from "./extract";
 import { consoleHr, printOptions } from "./lib/cli";
+import { log } from "./lib/log";
 import { triggerWebhook } from "./lib/webhook";
 import { run as runPrepare } from "./prepare";
 
 const createJob = (jobFn: (args: any) => Promise<any>) => async (args: any) => {
-  console.time("job");
+  const hrstart = process.hrtime();
   printOptions(args);
   consoleHr();
 
@@ -20,7 +22,7 @@ const createJob = (jobFn: (args: any) => Promise<any>) => async (args: any) => {
   try {
     validateOptions(args);
     const jobResult = await jobFn(args);
-    console.log("Job succeed!");
+    log("Job succeed!");
 
     if (args.postJobSuccessWebhook) {
       await triggerWebhook(args.postJobSuccessWebhook, {
@@ -33,7 +35,9 @@ const createJob = (jobFn: (args: any) => Promise<any>) => async (args: any) => {
     inError = true;
   }
 
-  console.timeEnd("job");
+  const hrend = process.hrtime(hrstart);
+
+  log("Job execution time: %ds %dms", hrend[0], hrend[1] / 1000000);
   process.exit(inError ? 1 : 0);
 };
 
@@ -58,43 +62,49 @@ yargs
     type: "string",
   })
 
-  .command("backup", "Run backup", (cmdArgs: yargs.Argv) => cmdArgs
-    .option("mysqlDataDirectory", {
-      default: process.env.MYSQL_DATA_DIRECTORY || "/var/lib/mysql",
-      type: "string",
-    })
-    .option("mysqlHost", {
-      default: process.env.MYSQL_HOST || "127.0.0.1",
-      type: "string",
-    })
-    .option("mysqlPassword", {
-      default: process.env.MYSQL_PASSWORD || process.env.MYSQL_ROOT_PASSWORD || "",
-      type: "string",
-    })
-    .option("mysqlPort", {
-      default: process.env.MYSQL_PORT || 3306,
-      type: "number",
-    })
-    .option("mysqlUser", {
-      default: process.env.MYSQL_USER || "root",
-      type: "string",
-    })
+  .command("backup", "", (cmdArgs: yargs.Argv) =>
+    cmdArgs
+      .command("list", "List backups", (listArgs: yargs.Argv) =>
+        listArgs.option("host", {})
+      , createJob(backupList))
+      .command(["$0", "run"], "Run backup", (runArgs: yargs.Argv) =>
+        runArgs.option("mysqlDataDirectory", {
+          default: process.env.MYSQL_DATA_DIRECTORY || "/var/lib/mysql",
+          type: "string",
+        })
+        .option("mysqlHost", {
+          default: process.env.MYSQL_HOST || "127.0.0.1",
+          type: "string",
+        })
+        .option("mysqlPassword", {
+          default: process.env.MYSQL_PASSWORD || process.env.MYSQL_ROOT_PASSWORD || "",
+          type: "string",
+        })
+        .option("mysqlPort", {
+          default: process.env.MYSQL_PORT || 3306,
+          type: "number",
+        })
+        .option("mysqlUser", {
+          default: process.env.MYSQL_USER || "root",
+          type: "string",
+        })
 
-    .option("backupDirectory", {
-      default: process.env.BACKUP_DIRECTORY || "/backup",
-      type: "string",
-    })
-    .option("backupMaxAge", {
-      default: 2,
-      describe: "In day",
-      type: "number",
-    })
+        .option("backupDirectory", {
+          default: process.env.BACKUP_DIRECTORY || "/backup",
+          type: "string",
+        })
+        .option("backupMaxAge", {
+          default: 2,
+          describe: "In day",
+          type: "number",
+        })
 
-    .option("xtrabackupDatabasesExclude", {
-      default: [],
-      type: "array",
-    })
-  , createJob(runBackup))
+        .option("xtrabackupDatabasesExclude", {
+          default: [],
+          type: "array",
+        })
+      , createJob(runBackup)),
+  )
 
   .command("prepare", "Run prepare", (cmdArgs: yargs.Argv) => cmdArgs
     .option("tempDirectory", {

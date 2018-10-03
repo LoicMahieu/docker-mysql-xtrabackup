@@ -1,10 +1,11 @@
+import { log } from "./log";
 
 export function consoleHr() {
-  console.log("========================================================================================");
-  console.log("");
-  console.log("");
-  console.log("");
-  console.log("========================================================================================");
+  log("========================================================================================");
+  log("");
+  log("");
+  log("");
+  log("========================================================================================");
 }
 
 export function printOptions(options: any) {
@@ -18,11 +19,11 @@ export function printOptions(options: any) {
     "$0",
   ];
 
-  console.log("Options:");
+  log("Options:");
   keys
     .filter((key) => hideKeys.indexOf(key) < 0)
     .forEach((key) => {
       const value = protectedKeys.indexOf(key) >= 0 ? "******" : options[key];
-      console.log(`${key}: `, value);
+      log(`${key}: `, value);
     });
 }

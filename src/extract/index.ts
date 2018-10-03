@@ -7,6 +7,7 @@ import zlib from "zlib";
 import { IBaseOptions } from "../base-options";
 import { consoleHr } from "../lib/cli";
 import { setupGCloud } from "../lib/gcloud";
+import { log } from "../lib/log";
 
 const dontBackupDatabases = [
   "Database",
@@ -63,21 +64,21 @@ async function convertToSQL(options: IExtractOptions) {
   const mysql = execa("mysqld", ["-uroot", `--datadir=${options.mysqlDataDirectory}`]);
 
   mysql.stderr.on("data", (data) => {
-    console.log("stderr:", data.toString());
+    log("stderr:", data.toString());
     if (data.toString().indexOf("ready for connections") >= 0) {
       mysql.stderr.emit("__ready__");
     }
   });
 
   mysql.stdout.on("data", (data) => {
-    console.log("stdout:", data.toString());
+    log("stdout:", data.toString());
   });
 
   try {
     await pEvent(mysql.stderr, "__ready__");
-    console.log("MySQL is ready!");
+    log("MySQL is ready!");
 
-    console.log("Start mysql-dump for all databases...");
+    log("Start mysql-dump for all databases...");
     const target = fs.createWriteStream(path.join(options.tempDirectory, "all-databases.sql.gz"));
     const backup = execa("mysqldump", [
       "--all-databases",
@@ -100,7 +101,7 @@ async function convertToSQL(options: IExtractOptions) {
       .filter((database) => dontBackupDatabases.indexOf(database) < 0);
 
     for (const database of databases) {
-      console.log(`Start mysql-dump for database "${database}" ...`);
+      log(`Start mysql-dump for database "${database}" ...`);
       const databaseTarget = fs.createWriteStream(path.join(options.tempDirectory, database + ".sql.gz"));
       const databaseBackup = execa("mysqldump", [
         "--databases",

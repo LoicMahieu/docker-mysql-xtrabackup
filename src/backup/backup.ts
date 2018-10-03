@@ -4,6 +4,7 @@ import execa from "execa";
 import fs from "fs-extra";
 import path from "path";
 import { IOptions } from ".";
+import { log } from "../lib/log";
 
 export async function runBackup(options: IOptions) {
   const backupName = format(new Date(), "YYYY-MM-DD");
@@ -29,8 +30,8 @@ export async function runBackup(options: IOptions) {
   }
 
   if (lastIncBackup) {
-    console.log("Found a previous incremental backup: " + lastIncBackup);
-    console.log("Start incremental backup in: " + newIncrementalBackupDirectory);
+    log("Found a previous incremental backup: " + lastIncBackup);
+    log("Start incremental backup in: " + newIncrementalBackupDirectory);
     await xtrabackup([
       ...xtrabackupBaseArgs,
       `--backup`,
@@ -38,8 +39,8 @@ export async function runBackup(options: IOptions) {
       `--incremental-basedir=${lastIncBackup}`,
     ]);
   } else if (fullBackupExists) {
-    console.log("Found full backup: " + fullBackupDirectory);
-    console.log("Start incremental backup in: " + newIncrementalBackupDirectory);
+    log("Found full backup: " + fullBackupDirectory);
+    log("Start incremental backup in: " + newIncrementalBackupDirectory);
     await xtrabackup([
       ...xtrabackupBaseArgs,
       `--backup`,
@@ -47,8 +48,8 @@ export async function runBackup(options: IOptions) {
       `--incremental-basedir=${fullBackupDirectory}`,
     ]);
   } else {
-    console.log("Could not find last full backup.");
-    console.log("Start full backup in: " + fullBackupDirectory);
+    log("Could not find last full backup.");
+    log("Start full backup in: " + fullBackupDirectory);
     await xtrabackup([
       ...xtrabackupBaseArgs,
       `--backup`,

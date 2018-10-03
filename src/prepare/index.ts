@@ -5,6 +5,7 @@ import path from "path";
 import { IBaseOptions } from "../base-options";
 import { consoleHr } from "../lib/cli";
 import { setupGCloud } from "../lib/gcloud";
+import { log } from "../lib/log";
 
 export interface IPrepareOptions extends IBaseOptions {
   tempDirectory: string;
@@ -49,10 +50,10 @@ async function prepare(options: IPrepareOptions) {
   const incrementals = files.filter((file) => file.match(/^inc-/));
   const fullDir = path.join(options.tempDirectory, "full");
 
-  console.log("Start apply log on FULL");
+  log("Start apply log on FULL");
   await xtraBackupPrepare(fullDir);
   for (const incremental of incrementals) {
-    console.log("Start apply log on incremental: " + incremental);
+    log("Start apply log on incremental: " + incremental);
     await xtraBackupPrepare(fullDir, path.join(options.tempDirectory, incremental));
   }
 }
