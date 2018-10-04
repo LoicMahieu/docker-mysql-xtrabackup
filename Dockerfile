@@ -1,8 +1,9 @@
 FROM node:10.10.0 as build
 
-ADD . /build
+COPY ./package.json ./yarn.lock /build/
 WORKDIR /build
 RUN yarn install --pure-lockfile
+COPY . /build
 RUN yarn build
 
 FROM mysql:5.6
@@ -29,4 +30,8 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 ENV PATH="$PATH:/root/google-cloud-sdk/bin"
 
-COPY --from=build /build/bin/xtrabackup-runner /usr/local/bin/xtrabackup-runner
+RUN mkdir -p /app/bin
+COPY --from=build /build/bin/xtrabackup-runner /app/bin/xtrabackup-runner
+COPY --from=build /build/node_modules /app/node_modules
+RUN ln -s /app/bin/xtrabackup-runner /usr/local/bin/xtrabackup-runner
+
