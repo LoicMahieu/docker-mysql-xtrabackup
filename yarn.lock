@@ -40,7 +40,7 @@
 
 "@google-cloud/storage@git+https://github.com/LoicMahieu/nodejs-storage.git#build":
   version "2.0.3"
-  resolved "git+https://github.com/LoicMahieu/nodejs-storage.git#b2509708becbeaf6415678e2dbff30ba6695d282"
+  resolved "git+https://github.com/LoicMahieu/nodejs-storage.git#2b7300c24d4c1b87abda4b0f9638c4579185b43a"
   dependencies:
     "@google-cloud/common" "^0.24.0"
     "@google-cloud/paginator" "^0.1.0"
