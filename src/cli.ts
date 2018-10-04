@@ -12,6 +12,7 @@ import { consoleHr, printOptions } from "./lib/cli";
 import { log } from "./lib/log";
 import { triggerWebhook } from "./lib/webhook";
 import { run as runPrepare } from "./prepare";
+import { restore } from "./restore";
 
 const createJob = (jobFn: (args: any) => Promise<any>) => async (args: any) => {
   const hrstart = process.hrtime();
@@ -71,6 +72,14 @@ yargs
         type: "number",
       })
   , createJob(clean))
+
+  .command("restore", "", (cmdArgs: yargs.Argv) =>
+    cmdArgs
+      .option("mysqlDataDirectory", {
+        default: process.env.MYSQL_DATA_DIRECTORY || "/var/lib/mysql",
+        type: "string",
+      })
+  , createJob(restore))
 
   .command("backup", "", (cmdArgs: yargs.Argv) =>
     cmdArgs
