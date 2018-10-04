@@ -16,11 +16,12 @@ interface ISetupGCloudOptions {
 export async function setupGCloud(options: ISetupGCloudOptions) {
   if (options.gcloudServiceAccountFile) {
     await execa("gcloud", [ "auth", "activate-service-account", `--key-file=${options.gcloudServiceAccountFile}` ]);
+    process.env.GOOGLE_APPLICATION_CREDENTIALS = options.gcloudServiceAccountFile;
   } else if (options.gcloudServiceAccountKey) {
     const keyFile = tempy.file();
     await fs.writeFile(keyFile, Buffer.from(options.gcloudServiceAccountKey, "base64").toString());
     await execa("gcloud", [ "auth", "activate-service-account", `--key-file=${keyFile}` ]);
-    await fs.remove(keyFile);
+    process.env.GOOGLE_APPLICATION_CREDENTIALS = keyFile;
   }
 }
 
