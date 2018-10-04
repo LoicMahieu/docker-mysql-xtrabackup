@@ -1,7 +1,7 @@
 
 import { IOptions } from "../backup";
 import { filterExpiredBackupDirectories } from "../lib/clean";
-import { deleteDirectory, getDirectories } from "../lib/gcloud";
+import { deleteDirectory, getDirectories, setupGCloud } from "../lib/gcloud";
 import { log } from "../lib/log";
 
 export interface ICleanOptions extends IOptions {
@@ -9,6 +9,8 @@ export interface ICleanOptions extends IOptions {
 }
 
 export async function clean(options: ICleanOptions) {
+  await setupGCloud(options);
+
   const directories = await getDirectories(options);
   const directoriesToClean = filterExpiredBackupDirectories(options.backupMaxAge, directories);
 
