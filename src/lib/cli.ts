@@ -23,7 +23,7 @@ export function printOptions(options: any) {
   keys
     .filter((key) => hideKeys.indexOf(key) < 0)
     .forEach((key) => {
-      const value = protectedKeys.indexOf(key) >= 0 ? "******" : options[key];
+      const value = (typeof options[key] !== "undefined" && protectedKeys.indexOf(key) >= 0) ? "******" : options[key];
       log(`${key}: `, value);
     });
 }
