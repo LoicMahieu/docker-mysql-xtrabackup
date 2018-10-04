@@ -1,0 +1,11 @@
+image: loicmahieu/mysql-xtrabackup
+imageTag: v1.3.0
+mysqlRootPassword: supersecret
+extraVolumeMounts: |
+  - name: backup
+    mountPath: /backup
+    subPath: backup
+extraVolumes: |
+  - name: backup
+    persistentVolumeClaim:
+      claimName: mysql-backup-pvc

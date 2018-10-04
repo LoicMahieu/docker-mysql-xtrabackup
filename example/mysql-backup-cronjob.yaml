@@ -1,0 +1,74 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: mysql-backup
+spec:
+  schedule: "24 * * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 4
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 1800 # 30 minutes
+      template:
+        spec:
+          restartPolicy: Never
+          serviceAccountName: mysql-backup
+          containers:
+          - name: mysql-backup
+            image: k3integrations/kubectl
+            command:
+            - /bin/bash
+            - -c
+            - pod_name=$(kubectl get pods -n $POD_NAMESPACE -l app=mysql -o jsonpath='{.items[*].metadata.name}');
+              kubectl get pod/$pod_name;
+              kubectl exec $pod_name -- /bin/bash -c "date && env && xtrabackup-runner backup --backupMaxAge=4 --mysqlPassword=\$MYSQL_ROOT_PASSWORD --mysqlPort=\$MYSQL_PORT_3306_TCP_PORT --gcloudBackupPath=$GCLOUD_BACKUP_PATH --gcloudServiceAccountKey=$GCLOUD_SERVICE_ACCOUNT_KEY --xtrabackupDatabasesExclude=performance_schema"
+            env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: GCLOUD_BACKUP_PATH
+              value: "gs://bucket-name/$(POD_NAMESPACE)/backup"
+            - name: GCLOUD_SERVICE_ACCOUNT_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: GCLOUD_SERVICE_ACCOUNT_KEY
+                  name: mysql-backup
+            resources:
+              limits:
+                cpu: 250m
+                memory: 500Mi
+              requests:
+                cpu: 50m
+                memory: 64Mi
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name: mysql-backup
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mysql-backup
+subjects:
+  - kind: ServiceAccount
+    name: mysql-backup
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mysql-backup
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: mysql-backup
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create"]

@@ -1,0 +1,42 @@
+## CI variables:
+# - BACKUP_INSTANCE
+# - GCLOUD_SERVICE_ACCOUNT_KEY
+# - MYSQL_USER
+# - MYSQL_PASSWORD
+
+image: loicmahieu/mysql-xtrabackup:v1.3.0
+
+backup:
+  script:
+    - GCLOUD_BUCKET=gs://bucket
+    - BACKUP_NAME=$(xtrabackup-runner backup list --gcloudBackupPath=$GCLOUD_BUCKET/$BACKUP_INSTANCE/backup/ | tail -n 2 | head -n 1)
+
+    - '[ "$BACKUP_NAME" = "" ]
+        && echo "Could not find variable BACKUP_NAME."
+        && exit 1'
+    - '[ "$BACKUP_INSTANCE" = "" ]
+        && echo "Could not find variable BACKUP_INSTANCE."
+        && exit 1'
+
+    - TEMP_DIR=/tmp/backup
+    - mkdir -p $TEMP_DIR
+
+    - xtrabackup-runner prepare
+      --tempDirectory=$TEMP_DIR
+      --gcloudBackupPath=$GCLOUD_BUCKET/$BACKUP_INSTANCE/backup/$BACKUP_NAME
+      --gcloudTargetPath=$GCLOUD_BUCKET/$BACKUP_INSTANCE/prepared/$BACKUP_NAME
+
+    - xtrabackup-runner extract
+      --gcloudBackupPath=$GCLOUD_BUCKET/$BACKUP_INSTANCE/prepared/$BACKUP_NAME
+      --gcloudTargetPath=$GCLOUD_BUCKET/$BACKUP_INSTANCE/extracted/$BACKUP_NAME
+      --mysqlDataDirectory=$TEMP_DIR/full
+      --mysqlUser=$MYSQL_USER
+      --mysqlPassword=$MYSQL_PASSWORD
+
+    - xtrabackup-runner clean
+      --gcloudBackupPath=$GCLOUD_BUCKET/$BACKUP_INSTANCE/prepared/
+      --backupMaxAge=10
+
+    - xtrabackup-runner clean
+      --gcloudBackupPath=$GCLOUD_BUCKET/$BACKUP_INSTANCE/extracted/
+      --backupMaxAge=10
