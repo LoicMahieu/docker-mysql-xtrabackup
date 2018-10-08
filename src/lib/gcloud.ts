@@ -28,6 +28,9 @@ export async function setupGCloud(options: ISetupGCloudOptions) {
 
 export async function rsync(options: IBaseOptions, from: string, to: string) {
   const baseArgs = [];
+  if (!options.gsutilRsyncVerbose) {
+    baseArgs.push("-q");
+  }
   if (options.gsutilRsyncParallel) {
     baseArgs.push("-m");
   }
@@ -40,7 +43,7 @@ export async function rsync(options: IBaseOptions, from: string, to: string) {
     from,
     to,
   ], {
-    stdio: ["inherit", process.stdout, "inherit"],
+    stdio: "inherit",
   });
 }
 

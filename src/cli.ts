@@ -60,6 +60,10 @@ yargs
     default: false,
     type: "boolean",
   })
+  .option("gsutilRsyncVerbose", {
+    default: false,
+    type: "boolean",
+  })
 
   .option("postJobSuccessWebhook", {
     type: "string",

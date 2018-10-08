@@ -5,6 +5,7 @@ export interface IBaseOptions {
   gcloudServiceAccountKey?: string;
 
   gsutilRsyncParallel: boolean;
+  gsutilRsyncVerbose: boolean;
 }
 
 export function validateOptions(options: IBaseOptions) {
