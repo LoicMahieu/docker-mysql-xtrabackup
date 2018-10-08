@@ -58,7 +58,7 @@ yargs
 
   .option("gsutilRsyncParallel", {
     default: false,
-    type: "string",
+    type: "boolean",
   })
 
   .option("postJobSuccessWebhook", {
