@@ -6,7 +6,7 @@ import path from "path";
 import zlib from "zlib";
 import { IBaseOptions } from "../base-options";
 import { consoleHr } from "../lib/cli";
-import { setupGCloud } from "../lib/gcloud";
+import { rsync, setupGCloud } from "../lib/gcloud";
 import { log } from "../lib/log";
 
 const dontBackupDatabases = [
@@ -50,14 +50,7 @@ function validateOptions(options: IExtractOptions) {
 
 async function downloadBackups(options: IExtractOptions) {
   await fs.ensureDir(options.mysqlDataDirectory);
-  await execa("gsutil", [
-    "-m",
-    "rsync",
-    "-d",
-    "-r",
-    options.gcloudBackupPath,
-    options.mysqlDataDirectory,
-  ], { stdio: "inherit" });
+  await rsync(options, options.gcloudBackupPath, options.mysqlDataDirectory);
 }
 
 async function convertToSQL(options: IExtractOptions) {

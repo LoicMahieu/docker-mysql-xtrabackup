@@ -1,13 +1,7 @@
 
-import execa from "execa";
 import { IOptions } from ".";
+import { rsync } from "../lib/gcloud";
 
 export async function runSync(options: IOptions) {
-  await execa("gsutil", [
-    "rsync",
-    "-d",
-    "-r",
-    options.backupDirectory,
-    options.gcloudBackupPath,
-  ], { stdio: "inherit" });
+  await rsync(options, options.backupDirectory, options.gcloudBackupPath);
 }

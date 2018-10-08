@@ -6,6 +6,7 @@ import path from "path";
 import tempy from "tempy";
 import url from "url";
 import { IOptions } from "../backup";
+import { IBaseOptions } from "../base-options";
 import { log } from "./log";
 
 interface ISetupGCloudOptions {
@@ -23,6 +24,24 @@ export async function setupGCloud(options: ISetupGCloudOptions) {
     await execa("gcloud", [ "auth", "activate-service-account", `--key-file=${keyFile}` ]);
     process.env.GOOGLE_APPLICATION_CREDENTIALS = keyFile;
   }
+}
+
+export async function rsync(options: IBaseOptions, from: string, to: string) {
+  const baseArgs = [];
+  if (options.gsutilRsyncParallel) {
+    baseArgs.push("-m");
+  }
+
+  await execa("gsutil", [
+    ...baseArgs,
+    "rsync",
+    "-d",
+    "-r",
+    from,
+    to,
+  ], {
+    stdio: ["inherit", process.stdout, "inherit"],
+  });
 }
 
 function createBucket(options: IOptions) {

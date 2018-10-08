@@ -4,7 +4,7 @@ import fs from "fs-extra";
 import path from "path";
 import { IBaseOptions } from "../base-options";
 import { consoleHr } from "../lib/cli";
-import { setupGCloud } from "../lib/gcloud";
+import { rsync, setupGCloud } from "../lib/gcloud";
 import { log } from "../lib/log";
 
 export interface IPrepareOptions extends IBaseOptions {
@@ -34,15 +34,7 @@ function validateOptions(options: IPrepareOptions) {
 }
 
 async function downloadBackups(options: IPrepareOptions) {
-  await fs.ensureDir(options.tempDirectory);
-  await execa("gsutil", [
-    "-m",
-    "rsync",
-    "-d",
-    "-r",
-    options.gcloudBackupPath,
-    options.tempDirectory,
-  ], { stdio: "inherit" });
+  await rsync(options, options.gcloudBackupPath, options.tempDirectory);
 }
 
 async function prepare(options: IPrepareOptions) {

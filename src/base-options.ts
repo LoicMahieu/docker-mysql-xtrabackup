@@ -3,6 +3,8 @@ export interface IBaseOptions {
   gcloudBackupPath: string;
   gcloudServiceAccountFile?: string;
   gcloudServiceAccountKey?: string;
+
+  gsutilRsyncParallel: boolean;
 }
 
 export function validateOptions(options: IBaseOptions) {
