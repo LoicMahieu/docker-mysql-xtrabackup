@@ -1,8 +1,8 @@
 
-import { addDays, isBefore, isValid, parse } from "date-fns";
 import fs from "fs-extra";
 import path from "path";
 import { IOptions } from ".";
+import { filterExpiredBackupDirectories } from "../lib/clean";
 import { log } from "../lib/log";
 
 export async function runClean(options: IOptions) {
@@ -25,14 +25,4 @@ export async function runClean(options: IOptions) {
     log("Remove previous backup: " + dirPath);
     await fs.remove(dirPath);
   }));
-}
-
-function filterExpiredBackupDirectories(backupMaxAge: number, directories: string[]): string[] {
-  const maxDate = addDays(new Date(), backupMaxAge * -1);
-  const filteredDirectories = directories
-    .filter((file) => {
-      const date = parse(file);
-      return isValid(date) && isBefore(date, maxDate);
-    });
-  return filteredDirectories;
 }
