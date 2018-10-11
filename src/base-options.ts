@@ -6,6 +6,8 @@ export interface IBaseOptions {
 
   gsutilRsyncParallel: boolean;
   gsutilRsyncVerbose: boolean;
+  gsutilRsyncIonice: number | boolean;
+  gsutilRsyncNice: number | boolean;
 }
 
 export function validateOptions(options: IBaseOptions) {

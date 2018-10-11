@@ -23,7 +23,7 @@ spec:
             - -c
             - pod_name=$(kubectl get pods -n $POD_NAMESPACE -l app=mysql -o jsonpath='{.items[*].metadata.name}');
               kubectl get pod/$pod_name;
-              kubectl exec $pod_name -- /bin/bash -c "date && env && xtrabackup-runner backup --backupMaxAge=4 --mysqlPassword=\$MYSQL_ROOT_PASSWORD --mysqlPort=\$MYSQL_PORT_3306_TCP_PORT --gcloudBackupPath=$GCLOUD_BACKUP_PATH --gcloudServiceAccountKey=$GCLOUD_SERVICE_ACCOUNT_KEY --xtrabackupDatabasesExclude=performance_schema"
+              kubectl exec $pod_name -- /bin/bash -c "date && env && xtrabackup-runner backup --gsutilRsyncIonice --gsutilRsyncNice --backupMaxAge=4 --mysqlPassword=\$MYSQL_ROOT_PASSWORD --mysqlPort=\$MYSQL_PORT_3306_TCP_PORT --gcloudBackupPath=$GCLOUD_BACKUP_PATH --gcloudServiceAccountKey=$GCLOUD_SERVICE_ACCOUNT_KEY --xtrabackupDatabasesExclude=performance_schema"
             env:
             - name: POD_NAMESPACE
               valueFrom:

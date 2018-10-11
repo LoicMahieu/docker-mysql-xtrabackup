@@ -64,6 +64,8 @@ yargs
     default: false,
     type: "boolean",
   })
+  .option("gsutilRsyncIonice", {})
+  .option("gsutilRsyncNice", {})
 
   .option("postJobSuccessWebhook", {
     type: "string",

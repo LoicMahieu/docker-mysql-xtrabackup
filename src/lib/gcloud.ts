@@ -35,14 +35,43 @@ export async function rsync(options: IBaseOptions, from: string, to: string) {
     baseArgs.push("-m");
   }
 
-  await execa("gsutil", [
+  const gsutilArgs = [
     ...baseArgs,
     "rsync",
     "-d",
     "-r",
     from,
     to,
-  ], {
+  ];
+  const command = {
+    args: gsutilArgs,
+    file: "gsutil",
+  };
+
+  if (options.gsutilRsyncIonice) {
+    const value = typeof options.gsutilRsyncIonice === "number" ? options.gsutilRsyncIonice : 10;
+    command.args = [
+      "-n",
+      "+" + value,
+      command.file,
+      ...command.args,
+    ];
+    command.file = "nice";
+  }
+
+  if (options.gsutilRsyncNice) {
+    const value = typeof options.gsutilRsyncNice === "number" ? options.gsutilRsyncNice : 3;
+    command.args = [
+      "-c" + value,
+      command.file,
+      ...command.args,
+    ];
+    command.file = "ionice";
+  }
+
+  console.log(`$ ${command.file} ${command.args.join(" ")}`);
+
+  await execa(command.file, command.args, {
     stdio: "inherit",
   });
 }
