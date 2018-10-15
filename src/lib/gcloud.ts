@@ -2,10 +2,8 @@
 import { Bucket, File, Storage } from "@google-cloud/storage";
 import execa from "execa";
 import fs from "fs-extra";
-import path from "path";
 import tempy from "tempy";
 import url from "url";
-import { IOptions } from "../backup";
 import { IBaseOptions } from "../base-options";
 import { log } from "./log";
 
@@ -76,10 +74,10 @@ export async function rsync(options: IBaseOptions, from: string, to: string) {
   });
 }
 
-function createBucket(options: IOptions) {
+function createBucket(directory: string) {
   const storage = new Storage();
 
-  const gcloudUrl = url.parse(options.gcloudBackupPath);
+  const gcloudUrl = url.parse(directory);
   if (!gcloudUrl.hostname || !gcloudUrl.path) {
     throw new Error("Invalid `gcloudBackupPath`");
   }
@@ -91,16 +89,14 @@ function createBucket(options: IOptions) {
   return { bucket, bucketName, prefix };
 }
 
-export async function deleteDirectory(options: IOptions, directory: string) {
-  const { bucket, bucketName, prefix } = createBucket(options);
-  log("Delete directory gs://%s/%s", bucketName, path.join(prefix, directory));
-  await bucket.deleteFiles({
-    prefix: path.join(prefix, directory),
-  });
+export async function deleteDirectory(directory: string) {
+  const { bucket, prefix } = createBucket(directory);
+  log("Delete directory gs://%s/%s", directory);
+  await bucket.deleteFiles({ prefix });
 }
 
-export async function getDirectories(options: IOptions) {
-  const { bucket, prefix } = createBucket(options);
+export async function getDirectories(directory: string) {
+  const { bucket, prefix } = createBucket(directory);
   const getFiles = makeGetFiles(bucket);
 
   const { apiResponse: { prefixes: directoriesPath = [] } = {} } = await getFiles({
@@ -109,7 +105,7 @@ export async function getDirectories(options: IOptions) {
     prefix,
   });
   const directories = directoriesPath
-    .map((directory) => directory.replace(prefix, "").replace(/\/$/, ""));
+    .map((dir) => dir.replace(prefix, "").replace(/\/$/, ""));
 
   return directories;
 }
@@ -124,3 +120,13 @@ new Promise<{ files?: File[], nextQuery?: {}, apiResponse?: { prefixes: string[]
     }
   });
 });
+
+export async function directoryExists(directory: string) {
+  const name = directory.replace(/\/$/, "").split("/").pop() || "";
+  const parent = directory.replace(/\/$/, "").split("/").slice(0, -1).join("/") + "/";
+
+  const parentDirectories = await getDirectories(parent);
+  const found = parentDirectories.indexOf(name) >= 0;
+
+  return found;
+}

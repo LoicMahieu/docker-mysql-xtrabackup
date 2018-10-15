@@ -11,7 +11,7 @@ export interface ICleanOptions extends IOptions {
 export async function clean(options: ICleanOptions) {
   await setupGCloud(options);
 
-  const directories = await getDirectories(options);
+  const directories = await getDirectories(options.gcloudBackupPath);
   const directoriesToClean = filterExpiredBackupDirectories(options.backupMaxAge, directories);
 
   log("Found directories:");
@@ -22,6 +22,6 @@ export async function clean(options: ICleanOptions) {
 
   for (const directory of directoriesToClean) {
     log("Delete directory %s", directory);
-    await deleteDirectory(options, directory);
+    await deleteDirectory(options.gcloudBackupPath + directory);
   }
 }

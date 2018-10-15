@@ -12,6 +12,7 @@ import { consoleHr, printOptions } from "./lib/cli";
 import { log } from "./lib/log";
 import { triggerWebhook } from "./lib/webhook";
 import { run as runPrepare } from "./prepare";
+import { run as runPrepareAuto } from "./prepareAuto";
 import { restore } from "./restore";
 
 const createJob = (jobFn: (args: any) => Promise<any>) => async (args: any) => {
@@ -45,6 +46,11 @@ const createJob = (jobFn: (args: any) => Promise<any>) => async (args: any) => {
 
 yargs
   .usage("$0 <cmd> [args]")
+
+  .option("dryRun", {
+    default: false,
+    type: "boolean",
+  })
 
   .option("gcloudBackupPath", { type: "string", required: true })
   .option("gcloudServiceAccountKey", {
@@ -146,6 +152,10 @@ yargs
       type: "string",
     })
   , createJob(runPrepare))
+
+  .command("prepareAuto", "Run prepare auto", (cmdArgs: yargs.Argv) => cmdArgs
+    .option("foo", {})
+  , createJob(runPrepareAuto))
 
   .command("extract", "Run extract", (cmdArgs: yargs.Argv) => cmdArgs
     .option("mysqlDataDirectory", {

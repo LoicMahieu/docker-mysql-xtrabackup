@@ -1,5 +1,7 @@
 
 export interface IBaseOptions {
+  dryRun: boolean;
+
   gcloudBackupPath: string;
   gcloudServiceAccountFile?: string;
   gcloudServiceAccountKey?: string;
