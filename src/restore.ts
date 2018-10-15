@@ -1,8 +1,8 @@
 
 import fs from "fs-extra";
-import { IBaseOptions } from "../base-options";
-import { consoleHr } from "../lib/cli";
-import { rsync, setupGCloud } from "../lib/gcloud";
+import { IBaseOptions } from "./base-options";
+import { consoleHr } from "./lib/cli";
+import { rsync, setupGCloud } from "./lib/gcloud";
 
 export interface IRestoreOptions extends IBaseOptions {
   mysqlDataDirectory: string;

@@ -1,6 +1,6 @@
 
-import { IOptions } from "../backup";
-import { getDirectories, setupGCloud } from "../lib/gcloud";
+import { IOptions } from "./backup";
+import { getDirectories, setupGCloud } from "./lib/gcloud";
 
 export async function list(options: IOptions) {
   await setupGCloud(options);

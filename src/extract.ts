@@ -4,10 +4,10 @@ import fs from "fs-extra";
 import pEvent, { Emitter } from "p-event";
 import path from "path";
 import zlib from "zlib";
-import { IBaseOptions } from "../base-options";
-import { consoleHr } from "../lib/cli";
-import { rsync, setupGCloud } from "../lib/gcloud";
-import { log } from "../lib/log";
+import { IBaseOptions } from "./base-options";
+import { consoleHr } from "./lib/cli";
+import { rsync, setupGCloud } from "./lib/gcloud";
+import { log } from "./lib/log";
 
 const dontBackupDatabases = [
   "Database",

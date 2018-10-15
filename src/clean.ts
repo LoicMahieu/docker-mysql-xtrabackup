@@ -1,8 +1,8 @@
 
-import { IOptions } from "../backup";
-import { filterExpiredBackupDirectories } from "../lib/clean";
-import { deleteDirectory, getDirectories, setupGCloud } from "../lib/gcloud";
-import { log } from "../lib/log";
+import { IOptions } from "./backup";
+import { filterExpiredBackupDirectories } from "./lib/clean";
+import { deleteDirectory, getDirectories, setupGCloud } from "./lib/gcloud";
+import { log } from "./lib/log";
 
 export interface ICleanOptions extends IOptions {
   backupMaxAge: number;
