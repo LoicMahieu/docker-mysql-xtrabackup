@@ -1,10 +1,10 @@
 
 import { IBaseOptions } from "../base-options";
 import { consoleHr } from "../lib/cli";
-import { setupGCloud } from "../lib/gcloud";
+import { rsync, setupGCloud } from "../lib/gcloud";
 import { runBackup } from "./backup";
 import { runClean } from "./clean";
-import { runSync } from "./sync";
+
 export interface IOptions extends IBaseOptions {
   mysqlDataDirectory: string;
   mysqlUser: string;
@@ -26,10 +26,18 @@ export async function run(options: any) {
   consoleHr();
   await runClean(options);
   consoleHr();
-  await runSync(options);
+  await runSync(options, backupName);
   consoleHr();
 
   return {
     backupName,
   };
+}
+
+export async function runSync(options: IOptions, backupName: string) {
+  await rsync(
+    options,
+    options.backupDirectory + "/" + backupName,
+    options.gcloudBackupPath + "/" + backupName,
+  );
 }
