@@ -51,7 +51,7 @@ async function prepareBackup(options: IPrepareAutoOptions, from: string, to: str
   if (options.dryRun) {
     log("Dry run: sync %s => %s", tmpDir, to);
   } else {
-    await rsync(options, tmpDir, to);
+    await rsync(options, tmpDir + "/full", to);
   }
   if (options.dryRun) {
     log("Dry run: delete %s", from);
