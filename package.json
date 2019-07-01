@@ -1,6 +1,6 @@
 {
   "name": "scripts",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "",
   "bin": {
     "xtrabackup-runner": "./bin/xtrabackup-runner"
