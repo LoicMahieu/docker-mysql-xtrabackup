@@ -7,7 +7,7 @@ import { log } from "../lib/log";
 
 export async function runClean(options: IOptions) {
   const files = await fs.readdir(options.backupDirectory);
-  const filteredFiles = filterExpiredBackupDirectories(options.backupMaxAge, files);
+  const filteredFiles = filterExpiredBackupDirectories(options.backupMaxAge, options.backupMin, files);
 
   log("Found previous backup:");
   files.forEach((file) => {

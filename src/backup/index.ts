@@ -14,6 +14,7 @@ export interface IOptions extends IBaseOptions {
 
   backupDirectory: string;
   backupMaxAge: number;
+  backupMin?: number;
 
   xtrabackupDatabasesExclude?: string[];
 }

@@ -88,6 +88,10 @@ yargs
         describe: "In day",
         type: "number",
       })
+      .option("backupMin", {
+        describe: "Number of backup minimum to keep",
+        type: "number",
+      })
   , createJob(clean))
 
   .command("restore", "", (cmdArgs: yargs.Argv) =>
