@@ -5,7 +5,7 @@ import { IOptions } from ".";
 import { log } from "../lib/log";
 import { xtrabackup } from "../lib/xtrabackup";
 
-export const backupDateMask = "YYYY-MM-DD";
+export const backupDateMask = "yyyy-MM-dd";
 export const getBackupName = () => format(new Date(), backupDateMask);
 
 export async function runBackup(options: IOptions) {
