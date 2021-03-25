@@ -1,24 +1,30 @@
-import fs, { mkdirp } from "fs-extra";
+import fs, { mkdirp, pathExists } from "fs-extra";
 import { join } from "path";
 import { IOptions } from ".";
+import { log } from "../lib/log";
 import { targz } from "../lib/targz";
 
 export async function runCompress(options: IOptions) {
   const directories = await fs.readdir(options.backupDirectory);
 
-  await Promise.all(
-    directories.map(async (dir) => {
-      const backups = await fs.readdir(join(options.backupDirectory, dir));
-      await Promise.all(
-        backups.map(async (backup) => {
-          await mkdirp(join(options.backupCompressDirectory, dir));
-          await targz(
-            join(options.backupCompressDirectory, dir, backup + ".tar.gz"),
-            join(options.backupDirectory, dir),
-            backup
-          );
-        })
+  for (const dir of directories) {
+    const backups = await fs.readdir(join(options.backupDirectory, dir));
+
+    for (const backup of backups) {
+      const targzFile = join(
+        options.backupCompressDirectory,
+        dir,
+        backup + ".tar.gz"
       );
-    })
-  );
+
+      if (pathExists(targzFile)) {
+        log(`Skip ${targzFile} since already exists`);
+      } else {
+        log(`Start building ${targzFile}...`);
+        await mkdirp(join(options.backupCompressDirectory, dir));
+        await targz(targzFile, join(options.backupDirectory, dir), backup);
+        log(`Done`);
+      }
+    }
+  }
 }
