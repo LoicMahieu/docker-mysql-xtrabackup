@@ -17,7 +17,7 @@ export async function runCompress(options: IOptions) {
         backup + ".tar.gz"
       );
 
-      if (pathExists(targzFile)) {
+      if (await pathExists(targzFile)) {
         log(`Skip ${targzFile} since already exists`);
       } else {
         log(`Start building ${targzFile}...`);
