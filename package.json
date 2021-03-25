@@ -1,9 +1,9 @@
 {
   "name": "@loicmahieu/mysql-xtrabackup",
-  "version": "1.5.2",
+  "version": "2.0.0",
   "description": "",
   "bin": {
-    "xtrabackup-runner": "./bin/xtrabackup-runner"
+    "xtrabackup-runner": "bin/xtrabackup-runner"
   },
   "files": [
     "bin/*",
