@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 
 import fs from "fs-extra";
 import { IBaseOptions } from "./base-options";

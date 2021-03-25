@@ -1,4 +1,3 @@
-
 import execa from "execa";
 import fs from "fs-extra";
 import path from "path";
@@ -17,10 +16,14 @@ export async function prepare(tempDirectory: string) {
   }
 }
 async function xtraBackupPrepare(targetDir: string, incrementalDir?: string) {
-  await execa("xtrabackup", [
-    "--prepare",
-    "--apply-log-only",
-    `--target-dir=${targetDir}`,
-    !incrementalDir ? "" : `--incremental-dir=${incrementalDir}`,
-  ].filter(Boolean), { stdio: "inherit" });
+  await execa(
+    "xtrabackup",
+    [
+      "--prepare",
+      "--apply-log-only",
+      `--target-dir=${targetDir}`,
+      !incrementalDir ? "" : `--incremental-dir=${incrementalDir}`,
+    ].filter(Boolean),
+    { stdio: "inherit" }
+  );
 }

@@ -1,4 +1,3 @@
-
 /* tslint:disable no-unused-expression */
 
 import tempy from "tempy";
@@ -28,9 +27,13 @@ const createJob = (jobFn: (args: any) => Promise<any>) => async (args: any) => {
     log("Job succeed!");
 
     if (args.postJobSuccessWebhook) {
-      await triggerWebhook(args.postJobSuccessWebhook, {
-        method: args.postJobSuccessWebhookMethod,
-      }, jobResult);
+      await triggerWebhook(
+        args.postJobSuccessWebhook,
+        {
+          method: args.postJobSuccessWebhookMethod,
+        },
+        jobResult
+      );
     }
   } catch (err) {
     console.error("Job failed!");
@@ -81,113 +84,151 @@ yargs
     type: "string",
   })
 
-  .command("clean", "", (cmdArgs: yargs.Argv) =>
-    cmdArgs
-      .option("backupMaxAge", {
-        default: 2,
-        describe: "In day",
-        type: "number",
-      })
-      .option("backupMin", {
-        describe: "Number of backup minimum to keep",
-        type: "number",
-      })
-  , createJob(clean))
+  .command(
+    "clean",
+    "",
+    (cmdArgs: yargs.Argv) =>
+      cmdArgs
+        .option("backupMaxAge", {
+          default: 2,
+          describe: "In day",
+          type: "number",
+        })
+        .option("backupMin", {
+          describe: "Number of backup minimum to keep",
+          type: "number",
+        }),
+    createJob(clean)
+  )
 
-  .command("restore", "", (cmdArgs: yargs.Argv) =>
-    cmdArgs
-      .option("mysqlDataDirectory", {
+  .command(
+    "restore",
+    "",
+    (cmdArgs: yargs.Argv) =>
+      cmdArgs.option("mysqlDataDirectory", {
         default: process.env.MYSQL_DATA_DIRECTORY || "/var/lib/mysql",
         type: "string",
-      })
-  , createJob(restore))
+      }),
+    createJob(restore)
+  )
 
   .command("backup", "", (cmdArgs: yargs.Argv) =>
     cmdArgs
-      .command("list", "List backups", (runArgs: yargs.Argv) => runArgs, createJob(backupList))
-      .command(["$0", "run"], "Run backup", (runArgs: yargs.Argv) =>
-        runArgs.option("mysqlDataDirectory", {
+      .command(
+        "list",
+        "List backups",
+        (runArgs: yargs.Argv) => runArgs,
+        createJob(backupList)
+      )
+      .command(
+        ["$0", "run"],
+        "Run backup",
+        (runArgs: yargs.Argv) =>
+          runArgs
+            .option("mysqlDataDirectory", {
+              default: process.env.MYSQL_DATA_DIRECTORY || "/var/lib/mysql",
+              type: "string",
+            })
+            .option("mysqlHost", {
+              default: process.env.MYSQL_HOST || "127.0.0.1",
+              type: "string",
+            })
+            .option("mysqlPassword", {
+              default:
+                process.env.MYSQL_PASSWORD ||
+                process.env.MYSQL_ROOT_PASSWORD ||
+                "",
+              type: "string",
+            })
+            .option("mysqlPort", {
+              default: process.env.MYSQL_PORT || 3306,
+              type: "number",
+            })
+            .option("mysqlUser", {
+              default: process.env.MYSQL_USER || "root",
+              type: "string",
+            })
+
+            .option("backupDirectory", {
+              default: process.env.BACKUP_DIRECTORY || "/backup/backups",
+              type: "string",
+            })
+            .option("backupCompressDirectory", {
+              default:
+                process.env.BACKUP_COMPRESS_DIRECTORY || "/backup/compress",
+              type: "string",
+            })
+            .option("backupMaxAge", {
+              default: 2,
+              describe: "In day",
+              type: "number",
+            })
+
+            .option("xtrabackupDatabasesExclude", {
+              default: [],
+              type: "array",
+            }),
+        createJob(runBackup)
+      )
+  )
+
+  .command(
+    "prepare",
+    "Run prepare",
+    (cmdArgs: yargs.Argv) =>
+      cmdArgs
+        .option("tempDirectory", {
+          default: () => tempy.directory(),
+          type: "string",
+        })
+
+        .option("gcloudTargetPath", {
+          default: process.env.GCLOUD_TARGET_PATH || "",
+          required: true,
+          type: "string",
+        }),
+    createJob(runPrepare)
+  )
+
+  .command(
+    "prepareAuto",
+    "Run prepare auto",
+    (cmdArgs: yargs.Argv) => cmdArgs.option("foo", {}),
+    createJob(runPrepareAuto)
+  )
+
+  .command(
+    "extract",
+    "Run extract",
+    (cmdArgs: yargs.Argv) =>
+      cmdArgs
+        .option("mysqlDataDirectory", {
           default: process.env.MYSQL_DATA_DIRECTORY || "/var/lib/mysql",
           type: "string",
         })
-        .option("mysqlHost", {
-          default: process.env.MYSQL_HOST || "127.0.0.1",
-          type: "string",
-        })
         .option("mysqlPassword", {
-          default: process.env.MYSQL_PASSWORD || process.env.MYSQL_ROOT_PASSWORD || "",
+          default:
+            process.env.MYSQL_PASSWORD || process.env.MYSQL_ROOT_PASSWORD || "",
           type: "string",
-        })
-        .option("mysqlPort", {
-          default: process.env.MYSQL_PORT || 3306,
-          type: "number",
         })
         .option("mysqlUser", {
           default: process.env.MYSQL_USER || "root",
           type: "string",
         })
 
-        .option("backupDirectory", {
-          default: process.env.BACKUP_DIRECTORY || "/backup",
+        .option("tempDirectory", {
+          default: () => tempy.directory(),
           type: "string",
         })
-        .option("backupMaxAge", {
-          default: 2,
-          describe: "In day",
-          type: "number",
-        })
 
-        .option("xtrabackupDatabasesExclude", {
-          default: [],
-          type: "array",
-        })
-      , createJob(runBackup)),
+        .option("gcloudTargetPath", {
+          default: process.env.GCLOUD_TARGET_PATH || "",
+          required: true,
+          type: "string",
+        }),
+    createJob(runExtract)
   )
-
-  .command("prepare", "Run prepare", (cmdArgs: yargs.Argv) => cmdArgs
-    .option("tempDirectory", {
-      default: () => tempy.directory(),
-      type: "string",
-    })
-
-    .option("gcloudTargetPath", {
-      default: process.env.GCLOUD_TARGET_PATH || "",
-      required: true,
-      type: "string",
-    })
-  , createJob(runPrepare))
-
-  .command("prepareAuto", "Run prepare auto", (cmdArgs: yargs.Argv) => cmdArgs
-    .option("foo", {})
-  , createJob(runPrepareAuto))
-
-  .command("extract", "Run extract", (cmdArgs: yargs.Argv) => cmdArgs
-    .option("mysqlDataDirectory", {
-      default: process.env.MYSQL_DATA_DIRECTORY || "/var/lib/mysql",
-      type: "string",
-    })
-    .option("mysqlPassword", {
-      default: process.env.MYSQL_PASSWORD || process.env.MYSQL_ROOT_PASSWORD || "",
-      type: "string",
-    })
-    .option("mysqlUser", {
-      default: process.env.MYSQL_USER || "root",
-      type: "string",
-    })
-
-    .option("tempDirectory", {
-      default: () => tempy.directory(),
-      type: "string",
-    })
-
-    .option("gcloudTargetPath", {
-      default: process.env.GCLOUD_TARGET_PATH || "",
-      required: true,
-      type: "string",
-    })
-  , createJob(runExtract))
 
   .help()
   .demandCommand(1, "You need at least one command")
-  .showHelpOnFail(true)
-  .argv;
+  .showHelpOnFail(true).argv;

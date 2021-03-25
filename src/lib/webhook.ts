@@ -1,4 +1,3 @@
-
 import fetch from "node-fetch";
 import { log } from "./log";
 
@@ -6,7 +5,11 @@ interface IVariables {
   [s: string]: string;
 }
 
-export async function triggerWebhook(webhook: string, options?: object, variables?: IVariables) {
+export async function triggerWebhook(
+  webhook: string,
+  options?: any,
+  variables?: IVariables
+) {
   log("Trigger webhook", webhook);
   try {
     const webhookUri = template(webhook, variables);
@@ -23,6 +26,8 @@ function template(webhook: string, variables?: IVariables) {
     return webhook;
   }
 
-  return Object.keys(variables)
-    .reduce((res, key) => res.replace(`%${key}%`, variables[key]), webhook);
+  return Object.keys(variables).reduce(
+    (res, key) => res.replace(`%${key}%`, variables[key]),
+    webhook
+  );
 }

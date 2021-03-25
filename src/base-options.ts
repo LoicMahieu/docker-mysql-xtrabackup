@@ -1,4 +1,3 @@
-
 export interface IBaseOptions {
   dryRun: boolean;
 
@@ -6,10 +5,10 @@ export interface IBaseOptions {
   gcloudServiceAccountFile?: string;
   gcloudServiceAccountKey?: string;
 
-  gsutilRsyncParallel: boolean;
-  gsutilRsyncVerbose: boolean;
-  gsutilRsyncIonice: number | boolean;
-  gsutilRsyncNice: number | boolean;
+  gsutilRsyncParallel?: boolean;
+  gsutilRsyncVerbose?: boolean;
+  gsutilRsyncIonice?: number | boolean;
+  gsutilRsyncNice?: number | boolean;
 }
 
 export function validateOptions(options: IBaseOptions) {

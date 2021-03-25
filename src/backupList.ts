@@ -1,4 +1,3 @@
-
 import { IOptions } from "./backup";
 import { getDirectories, setupGCloud } from "./lib/gcloud";
 

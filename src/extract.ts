@@ -1,4 +1,3 @@
-
 import execa from "execa";
 import fs from "fs-extra";
 import pEvent, { Emitter } from "p-event";
@@ -54,12 +53,19 @@ async function downloadBackups(options: IExtractOptions) {
 }
 
 async function convertToSQL(options: IExtractOptions) {
-  const mysql = execa("mysqld", ["-uroot", `--datadir=${options.mysqlDataDirectory}`]);
+  const mysql = execa("mysqld", [
+    "-uroot",
+    `--datadir=${options.mysqlDataDirectory}`,
+  ]);
+
+  if (!(mysql.stdout && mysql.stderr)) {
+    throw new Error("Child process does not have std");
+  }
 
   mysql.stderr.on("data", (data) => {
     log("stderr:", data.toString());
     if (data.toString().indexOf("ready for connections") >= 0) {
-      mysql.stderr.emit("__ready__");
+      mysql.stderr?.emit("__ready__");
     }
   });
 
@@ -72,36 +78,50 @@ async function convertToSQL(options: IExtractOptions) {
     log("MySQL is ready!");
 
     log("Start mysql-dump for all databases...");
-    const target = fs.createWriteStream(path.join(options.tempDirectory, "all-databases.sql.gz"));
+    const target = fs.createWriteStream(
+      path.join(options.tempDirectory, "all-databases.sql.gz")
+    );
     const backup = execa("mysqldump", [
       "--all-databases",
       `-u${options.mysqlUser}`,
       `-p${options.mysqlPassword}`,
     ]);
+    if (!(backup.stdout && backup.stderr)) {
+      throw new Error("Child process does not have std");
+    }
     backup.stderr.pipe(process.stderr);
     backup.stdout.pipe(zlib.createGzip()).pipe(target);
     await pEvent(target as Emitter<any, any>, "finish");
 
-    const databases = (await execa("mysql", [
-      `-u${options.mysqlUser}`,
-      `-p${options.mysqlPassword}`,
-      "-s",
-      "-N",
-      "-e",
-      "SHOW DATABASES",
-    ]))
-      .stdout.split("\n")
+    const databases = (
+      await execa("mysql", [
+        `-u${options.mysqlUser}`,
+        `-p${options.mysqlPassword}`,
+        "-s",
+        "-N",
+        "-e",
+        "SHOW DATABASES",
+      ])
+    ).stdout
+      .split("\n")
       .filter((database) => dontBackupDatabases.indexOf(database) < 0);
 
     for (const database of databases) {
       log(`Start mysql-dump for database "${database}" ...`);
-      const databaseTarget = fs.createWriteStream(path.join(options.tempDirectory, database + ".sql.gz"));
+      const databaseTarget = fs.createWriteStream(
+        path.join(options.tempDirectory, database + ".sql.gz")
+      );
       const databaseBackup = execa("mysqldump", [
         "--databases",
         database,
         `-u${options.mysqlUser}`,
         `-p${options.mysqlPassword}`,
       ]);
+
+      if (!(databaseBackup.stdout && databaseBackup.stderr)) {
+        throw new Error("Child process does not have std");
+      }
+
       databaseBackup.stderr.pipe(process.stderr);
       databaseBackup.stdout.pipe(zlib.createGzip()).pipe(databaseTarget);
       await pEvent(databaseTarget as Emitter<any, any>, "finish");
@@ -112,12 +132,16 @@ async function convertToSQL(options: IExtractOptions) {
 }
 
 export async function upload(options: IExtractOptions) {
-  await execa("gsutil", [
-    "-m",
-    "rsync",
-    "-d",
-    "-r",
-    options.tempDirectory,
-    options.gcloudTargetPath,
-  ], { stdio: "inherit" });
+  await execa(
+    "gsutil",
+    [
+      "-m",
+      "rsync",
+      "-d",
+      "-r",
+      options.tempDirectory,
+      options.gcloudTargetPath,
+    ],
+    { stdio: "inherit" }
+  );
 }

@@ -1,9 +1,9 @@
-
 import { IBaseOptions } from "../base-options";
 import { consoleHr } from "../lib/cli";
 import { rsync, setupGCloud } from "../lib/gcloud";
 import { runBackup } from "./backup";
 import { runClean } from "./clean";
+import { runCompress } from "./compress";
 
 export interface IOptions extends IBaseOptions {
   mysqlDataDirectory: string;
@@ -13,6 +13,7 @@ export interface IOptions extends IBaseOptions {
   mysqlPort: string;
 
   backupDirectory: string;
+  backupCompressDirectory: string;
   backupMaxAge: number;
   backupMin?: number;
 
@@ -27,6 +28,8 @@ export async function run(options: any) {
   consoleHr();
   await runClean(options);
   consoleHr();
+  await runCompress(options);
+  consoleHr();
   await runSync(options, backupName);
   consoleHr();
 
@@ -38,7 +41,7 @@ export async function run(options: any) {
 export async function runSync(options: IOptions, backupName: string) {
   await rsync(
     options,
-    options.backupDirectory + "/" + backupName,
-    options.gcloudBackupPath + "/" + backupName,
+    options.backupCompressDirectory + "/" + backupName,
+    options.gcloudBackupPath + "/" + backupName
   );
 }

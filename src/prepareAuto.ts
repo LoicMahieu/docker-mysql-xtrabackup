@@ -1,9 +1,14 @@
-
 import fs from "fs-extra";
 import tempy from "tempy";
 import { IBaseOptions } from "./base-options";
 import { consoleHr } from "./lib/cli";
-import { deleteDirectory, directoryExists, getDirectories, rsync, setupGCloud } from "./lib/gcloud";
+import {
+  deleteDirectory,
+  directoryExists,
+  getDirectories,
+  rsync,
+  setupGCloud,
+} from "./lib/gcloud";
 import { log } from "./lib/log";
 import { prepare } from "./lib/prepare";
 
@@ -36,14 +41,18 @@ export async function run(options: IPrepareAutoOptions) {
 
     if (await directoryExists(targetDir)) {
       log("Skip target exists");
-    } else {
+    } else {
       log("Start prepare");
       await prepareBackup(options, backupDir, targetDir);
     }
   }
 }
 
-async function prepareBackup(options: IPrepareAutoOptions, from: string, to: string) {
+async function prepareBackup(
+  options: IPrepareAutoOptions,
+  from: string,
+  to: string
+) {
   const tmpDir = tempy.file();
   await fs.ensureDir(tmpDir);
   await rsync(options, from, tmpDir);

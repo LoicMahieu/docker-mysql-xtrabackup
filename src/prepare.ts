@@ -1,4 +1,3 @@
-
 import execa from "execa";
 import path from "path";
 import { IBaseOptions } from "./base-options";
@@ -38,12 +37,9 @@ async function downloadBackups(options: IPrepareOptions) {
 
 export async function upload(options: IPrepareOptions) {
   const fullDir = path.join(options.tempDirectory, "full");
-  await execa("gsutil", [
-    "-m",
-    "rsync",
-    "-d",
-    "-r",
-    fullDir,
-    options.gcloudTargetPath,
-  ], { stdio: "inherit" });
+  await execa(
+    "gsutil",
+    ["-m", "rsync", "-d", "-r", fullDir, options.gcloudTargetPath],
+    { stdio: "inherit" }
+  );
 }

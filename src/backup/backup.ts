@@ -1,13 +1,15 @@
-
 import { format } from "date-fns";
-import execa from "execa";
 import fs from "fs-extra";
 import path from "path";
 import { IOptions } from ".";
 import { log } from "../lib/log";
+import { xtrabackup } from "../lib/xtrabackup";
+
+export const backupDateMask = "YYYY-MM-DD";
+export const getBackupName = () => format(new Date(), backupDateMask);
 
 export async function runBackup(options: IOptions) {
-  const backupName = format(new Date(), "YYYY-MM-DD");
+  const backupName = getBackupName();
 
   const currentBackupDirectory = path.join(options.backupDirectory, backupName);
   await fs.ensureDir(currentBackupDirectory);
@@ -16,7 +18,10 @@ export async function runBackup(options: IOptions) {
   const fullBackupExists = await fs.pathExists(fullBackupDirectory);
 
   const lastIncBackup = await findIncrementalLastBackup(currentBackupDirectory);
-  const newIncrementalBackupDirectory = path.join(currentBackupDirectory, "inc-" + format(new Date(), "HH-mm-ss"));
+  const newIncrementalBackupDirectory = path.join(
+    currentBackupDirectory,
+    "inc-" + format(new Date(), "HH-mm-ss")
+  );
 
   const xtrabackupBaseArgs = [
     `--datadir=${options.mysqlDataDirectory}`,
@@ -26,7 +31,9 @@ export async function runBackup(options: IOptions) {
     `--port=${options.mysqlPort}`,
   ];
   if (options.xtrabackupDatabasesExclude) {
-    xtrabackupBaseArgs.push(`--databases-exclude=${options.xtrabackupDatabasesExclude.join(" ")}`);
+    xtrabackupBaseArgs.push(
+      `--databases-exclude=${options.xtrabackupDatabasesExclude.join(" ")}`
+    );
   }
 
   if (lastIncBackup) {
@@ -61,17 +68,14 @@ export async function runBackup(options: IOptions) {
 }
 
 async function findIncrementalLastBackup(directoryPath: string) {
-  if (!await fs.pathExists(directoryPath)) {
+  if (!(await fs.pathExists(directoryPath))) {
     return;
   }
-  const files = (await fs.readdir(directoryPath))
-    .filter((file) => file.match(/^inc-/));
+  const files = (await fs.readdir(directoryPath)).filter((file) =>
+    file.match(/^inc-/)
+  );
   if (!files.length) {
     return;
   }
   return path.join(directoryPath, files[files.length - 1]);
-}
-
-async function xtrabackup(args: string[]) {
-  return execa("xtrabackup", args, { stdio: "inherit" });
 }
