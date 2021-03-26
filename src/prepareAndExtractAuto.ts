@@ -19,7 +19,8 @@ import { prepare } from "./lib/prepare";
 
 export type IPrepareAutoOptions = {
   gcloudTargetPath: string;
-} & IExtractOptions & IBaseOptions;
+} & IExtractOptions &
+  IBaseOptions;
 
 export async function run(options: IPrepareAutoOptions) {
   if (!options.gcloudTargetPath) {
@@ -60,12 +61,17 @@ async function prepareAndExtract(
   from: string,
   to: string
 ) {
-  const tmpDir = tempy.file();
+  const tmpDir = tempy.directory();
+  const extractDir = tempy.directory();
   await fs.ensureDir(tmpDir);
+  await fs.ensureDir(extractDir);
   await rsync(options, from, tmpDir);
   await prepare(tmpDir);
   await copyPreparedBackup(tmpDir + "/full", options.mysqlDataDirectory);
-  await convertToSQL(options);
-  await rsync(options, tmpDir + "/full", to);
+  await convertToSQL({
+    ...options,
+    tempDirectory: extractDir,
+  });
+  await rsync(options, extractDir, to);
   await fs.remove(tmpDir);
 }
