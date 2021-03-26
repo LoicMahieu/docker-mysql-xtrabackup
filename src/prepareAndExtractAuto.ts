@@ -61,10 +61,11 @@ async function prepareAndExtract(
   from: string,
   to: string
 ) {
-  const tmpDir = tempy.directory();
-  const extractDir = tempy.directory();
+  const tmpDir = options.tempDirectory + "/backup";
+  const extractDir = options.tempDirectory + "/extracted";
   await fs.ensureDir(tmpDir);
   await fs.ensureDir(extractDir);
+
   await rsync(options, from, tmpDir);
   await prepare(tmpDir);
   await copyPreparedBackup(tmpDir + "/full", options.mysqlDataDirectory);
