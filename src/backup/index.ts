@@ -28,7 +28,7 @@ export async function run(options: any) {
   consoleHr();
   await runClean(options);
   consoleHr();
-  await runCompress(options);
+  await runCompress(options, backupName);
   consoleHr();
   await runSync(options, backupName);
   consoleHr();

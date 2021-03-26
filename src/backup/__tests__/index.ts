@@ -1,4 +1,4 @@
-import { runBackup } from "../backup";
+import { getBackupName, runBackup } from "../backup";
 import { directory } from "tempy";
 import yargs from "yargs";
 import * as xtrabackup from "../../lib/xtrabackup";
@@ -171,7 +171,7 @@ describe("backup", () => {
       "baz"
     );
 
-    await runCompress(options);
+    await runCompress(options, getBackupName());
 
     expect([await tree(backupDirectory), await tree(backupCompressDirectory)])
       .toMatchInlineSnapshot(`
