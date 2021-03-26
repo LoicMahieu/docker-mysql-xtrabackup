@@ -1,5 +1,4 @@
 import fs from "fs-extra";
-import tempy from "tempy";
 import { getBackupName } from "./backup/backup";
 import { IBaseOptions } from "./base-options";
 import { consoleHr } from "./lib/cli";
