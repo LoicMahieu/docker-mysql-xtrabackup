@@ -73,5 +73,4 @@ async function prepareAndExtract(
     tempDirectory: extractDir,
   });
   await rsync(options, extractDir, to);
-  await fs.remove(tmpDir);
 }
