@@ -9,7 +9,6 @@ const isArchive = (v: string) =>
 const isIncremental = (v: string) => v.match(/^inc-/);
 
 export async function prepare(tempDirectory: string) {
-  const files = await readdir(tempDirectory);
   const fullDir = join(tempDirectory, "full");
   const fullArchve = fullDir + archiveExtention;
 
@@ -17,7 +16,9 @@ export async function prepare(tempDirectory: string) {
     log(`Extract full archive...`);
     await archiveExtract(fullArchve, tempDirectory);
   }
-  const incrementalArchives = files.filter(isIncremental).filter(isArchive);
+  const incrementalArchives = (await readdir(tempDirectory))
+    .filter(isIncremental)
+    .filter(isArchive);
   for (const archive of incrementalArchives) {
     const incrementalDir = join(
       tempDirectory,
@@ -31,7 +32,11 @@ export async function prepare(tempDirectory: string) {
 
   log("Start apply log on FULL");
   await xtraBackupPrepare(fullDir);
-  const incrementals = files.filter(isIncremental).filter((v) => !isArchive(v));
+  const incrementals = (await readdir(tempDirectory))
+    .filter(isIncremental)
+    .filter((v) => !isArchive(v));
+  log(`Found ${incrementals.length} incrementas backups`, incrementals);
+
   for (const incremental of incrementals) {
     log("Start apply log on incremental: " + incremental);
     const incrementalDir = join(tempDirectory, incremental);
