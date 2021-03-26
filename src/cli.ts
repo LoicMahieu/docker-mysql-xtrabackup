@@ -221,6 +221,11 @@ yargs
           type: "string",
         })
 
+        .option("preparedBackupDirectory", {
+          required: true,
+          type: "string",
+        })
+
         .option("gcloudTargetPath", {
           default: process.env.GCLOUD_TARGET_PATH || "",
           required: true,

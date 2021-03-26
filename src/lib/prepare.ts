@@ -1,20 +1,44 @@
 import execa from "execa";
-import fs from "fs-extra";
-import path from "path";
+import { pathExists, readdir } from "fs-extra";
+import { join } from "path";
 import { log } from "./log";
+import { archiveExtention, archiveExtract } from "./targz";
+
+const isArchive = (v: string) =>
+  v.slice(-1 * archiveExtention.length) === archiveExtention;
+const isIncremental = (v: string) => v.match(/^inc-/);
 
 export async function prepare(tempDirectory: string) {
-  const files = await fs.readdir(tempDirectory);
-  const incrementals = files.filter((file) => file.match(/^inc-/));
-  const fullDir = path.join(tempDirectory, "full");
+  const files = await readdir(tempDirectory);
+  const fullDir = join(tempDirectory, "full");
+  const fullArchve = fullDir + archiveExtention;
+
+  if (!(await pathExists(fullDir)) && (await pathExists(fullArchve))) {
+    log(`Extract full archive...`);
+    await archiveExtract(fullArchve, tempDirectory);
+  }
+  const incrementalArchives = files.filter(isIncremental).filter(isArchive);
+  for (const archive of incrementalArchives) {
+    const incrementalDir = join(
+      tempDirectory,
+      archive.slice(0, -1 * archiveExtention.length)
+    );
+    if (!(await pathExists(incrementalDir))) {
+      log(`Extract archive ${archive}...`);
+      await archiveExtract(join(tempDirectory, archive), tempDirectory);
+    }
+  }
 
   log("Start apply log on FULL");
   await xtraBackupPrepare(fullDir);
+  const incrementals = files.filter(isIncremental).filter((v) => !isArchive(v));
   for (const incremental of incrementals) {
     log("Start apply log on incremental: " + incremental);
-    await xtraBackupPrepare(fullDir, path.join(tempDirectory, incremental));
+    const incrementalDir = join(tempDirectory, incremental);
+    await xtraBackupPrepare(fullDir, incrementalDir);
   }
 }
+
 async function xtraBackupPrepare(targetDir: string, incrementalDir?: string) {
   await execa(
     "xtrabackup",

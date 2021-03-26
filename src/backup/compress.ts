@@ -2,7 +2,7 @@ import fs, { mkdirp, pathExists } from "fs-extra";
 import { join } from "path";
 import { IOptions } from ".";
 import { log } from "../lib/log";
-import { targz } from "../lib/targz";
+import { archiveExtention, archiveCreate } from "../lib/targz";
 
 export async function runCompress(options: IOptions, backupName: string) {
   const backups = await fs.readdir(join(options.backupDirectory, backupName));
@@ -11,7 +11,7 @@ export async function runCompress(options: IOptions, backupName: string) {
     const targzFile = join(
       options.backupCompressDirectory,
       backupName,
-      backup + ".tar.gz"
+      backup + archiveExtention
     );
 
     if (await pathExists(targzFile)) {
@@ -19,7 +19,7 @@ export async function runCompress(options: IOptions, backupName: string) {
     } else {
       log(`Start building ${targzFile}...`);
       await mkdirp(join(options.backupCompressDirectory, backupName));
-      await targz(targzFile, join(options.backupDirectory, backupName), backup);
+      await archiveCreate(targzFile, join(options.backupDirectory, backupName), backup);
       log(`Done`);
     }
   }

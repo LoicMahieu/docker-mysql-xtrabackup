@@ -1,5 +1,5 @@
 import execa from "execa";
-import fs from "fs-extra";
+import fs, { copy, mkdirp } from "fs-extra";
 import pEvent, { Emitter } from "p-event";
 import path from "path";
 import zlib from "zlib";
@@ -18,6 +18,8 @@ const dontBackupDatabases = [
 ];
 
 export interface IExtractOptions extends IBaseOptions {
+  preparedBackupDirectory: string;
+
   mysqlDataDirectory: string;
   mysqlUser: string;
   mysqlPassword: string;
@@ -33,7 +35,7 @@ export async function run(options: any) {
   consoleHr();
   await setupGCloud(options);
   consoleHr();
-  await downloadBackups(options);
+  await copyPreparedBackup(options);
   consoleHr();
   await convertToSQL(options);
   consoleHr();
@@ -47,12 +49,15 @@ function validateOptions(options: IExtractOptions) {
   }
 }
 
-async function downloadBackups(options: IExtractOptions) {
+async function copyPreparedBackup(options: IExtractOptions) {
   await fs.ensureDir(options.mysqlDataDirectory);
-  await rsync(options, options.gcloudBackupPath, options.mysqlDataDirectory);
+  log("Copy prepared backup...")
+  await copy(options.preparedBackupDirectory, options.mysqlDataDirectory);
 }
 
 async function convertToSQL(options: IExtractOptions) {
+  await mkdirp(options.tempDirectory);
+
   const mysql = execa("mysqld", [
     "-uroot",
     `--datadir=${options.mysqlDataDirectory}`,
@@ -132,16 +137,5 @@ async function convertToSQL(options: IExtractOptions) {
 }
 
 export async function upload(options: IExtractOptions) {
-  await execa(
-    "gsutil",
-    [
-      "-m",
-      "rsync",
-      "-d",
-      "-r",
-      options.tempDirectory,
-      options.gcloudTargetPath,
-    ],
-    { stdio: "inherit" }
-  );
+  await rsync(options, options.tempDirectory, options.gcloudTargetPath);
 }
