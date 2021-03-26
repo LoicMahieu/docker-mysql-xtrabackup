@@ -1,9 +1,14 @@
 import fs from "fs-extra";
 import tempy from "tempy";
+import { getBackupName } from "./backup/backup";
 import { IBaseOptions } from "./base-options";
 import { consoleHr } from "./lib/cli";
 import {
-  deleteDirectory,
+  convertToSQL,
+  copyPreparedBackup,
+  IExtractOptions,
+} from "./lib/extract";
+import {
   directoryExists,
   getDirectories,
   rsync,
@@ -12,9 +17,9 @@ import {
 import { log } from "./lib/log";
 import { prepare } from "./lib/prepare";
 
-export interface IPrepareAutoOptions extends IBaseOptions {
+export type IPrepareAutoOptions = {
   gcloudTargetPath: string;
-}
+} & IExtractOptions & IBaseOptions;
 
 export async function run(options: IPrepareAutoOptions) {
   if (!options.gcloudTargetPath) {
@@ -28,12 +33,14 @@ export async function run(options: IPrepareAutoOptions) {
   const directories = await getDirectories(options.gcloudBackupPath);
   log("Found directories:", directories);
 
-  const backupDirectories = directories.slice(0, -1);
+  const backupDirectories = directories
+    .filter((v) => v !== getBackupName())
+    .slice(-1);
   log("Use directories:", backupDirectories);
 
   for (const dir of backupDirectories) {
-    const backupDir = options.gcloudBackupPath + dir + "/";
-    const targetDir = options.gcloudTargetPath + dir + "/";
+    const backupDir = options.gcloudBackupPath + "/" + dir + "/";
+    const targetDir = options.gcloudTargetPath + "/" + dir + "/";
 
     log("=====");
     log("Backup: ", backupDir);
@@ -43,12 +50,12 @@ export async function run(options: IPrepareAutoOptions) {
       log("Skip target exists");
     } else {
       log("Start prepare");
-      await prepareBackup(options, backupDir, targetDir);
+      await prepareAndExtract(options, backupDir, targetDir);
     }
   }
 }
 
-async function prepareBackup(
+async function prepareAndExtract(
   options: IPrepareAutoOptions,
   from: string,
   to: string
@@ -57,16 +64,8 @@ async function prepareBackup(
   await fs.ensureDir(tmpDir);
   await rsync(options, from, tmpDir);
   await prepare(tmpDir);
-  if (options.dryRun) {
-    log("Dry run: sync %s => %s", tmpDir, to);
-  } else {
-    await rsync(options, tmpDir + "/full", to);
-  }
-  if (options.dryRun) {
-    log("Dry run: delete %s", from);
-  } else {
-    await deleteDirectory(from);
-  }
-
+  await copyPreparedBackup(tmpDir + "/full", options.mysqlDataDirectory);
+  await convertToSQL(options);
+  await rsync(options, tmpDir + "/full", to);
   await fs.remove(tmpDir);
 }

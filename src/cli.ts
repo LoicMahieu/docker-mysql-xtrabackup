@@ -11,7 +11,7 @@ import { consoleHr, printOptions } from "./lib/cli";
 import { log } from "./lib/log";
 import { triggerWebhook } from "./lib/webhook";
 import { run as runPrepare } from "./prepare";
-import { run as runPrepareAuto } from "./prepareAuto";
+import { run as runPrepareAndExtractAuto } from "./prepareAndExtractAuto";
 import { restore } from "./restore";
 
 const createJob = (jobFn: (args: any) => Promise<any>) => async (args: any) => {
@@ -191,10 +191,43 @@ yargs
   )
 
   .command(
-    "prepareAuto",
-    "Run prepare auto",
-    (cmdArgs: yargs.Argv) => cmdArgs.option("foo", {}),
-    createJob(runPrepareAuto)
+    "prepareAndExtractAuto",
+    "Run prepare and extract latest backup automatically",
+    (runArgs: yargs.Argv) =>
+      runArgs
+        .option("mysqlDataDirectory", {
+          default: process.env.MYSQL_DATA_DIRECTORY || "/var/lib/mysql",
+          type: "string",
+        })
+        .option("mysqlHost", {
+          default: process.env.MYSQL_HOST || "127.0.0.1",
+          type: "string",
+        })
+        .option("mysqlPassword", {
+          default:
+            process.env.MYSQL_PASSWORD || process.env.MYSQL_ROOT_PASSWORD || "",
+          type: "string",
+        })
+        .option("mysqlPort", {
+          default: process.env.MYSQL_PORT || 3306,
+          type: "number",
+        })
+        .option("mysqlUser", {
+          default: process.env.MYSQL_USER || "root",
+          type: "string",
+        })
+
+        .option("tempDirectory", {
+          default: () => tempy.directory(),
+          type: "string",
+        })
+
+        .option("gcloudTargetPath", {
+          default: process.env.GCLOUD_TARGET_PATH || "",
+          required: true,
+          type: "string",
+        }),
+    createJob(runPrepareAndExtractAuto)
   )
 
   .command(

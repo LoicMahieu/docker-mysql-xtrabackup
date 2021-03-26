@@ -83,7 +83,7 @@ function createBucket(directory: string) {
 
   const bucketName = gcloudUrl.hostname;
   const bucket = storage.bucket(bucketName);
-  const prefix = gcloudUrl.path.replace(/^\//, "");
+  const prefix = gcloudUrl.path.replace(/^\//, "") + "/";
 
   return { bucket, bucketName, prefix };
 }
