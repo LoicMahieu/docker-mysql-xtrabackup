@@ -15,7 +15,7 @@ export async function run(options: IExtractTaskOptions) {
   consoleHr();
   await setupGCloud(options);
   consoleHr();
-  await copyPreparedBackup(options.preparedBackupDirectory, options.mysqlDataDirectory);
+  await copyPreparedBackup(options.preparedBackupDirectory, options.mysqlDataDirectory, options);
   consoleHr();
   await convertToSQL(options);
   consoleHr();

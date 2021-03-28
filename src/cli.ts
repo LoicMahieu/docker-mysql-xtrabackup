@@ -216,6 +216,10 @@ yargs
           default: process.env.MYSQL_USER || "root",
           type: "string",
         })
+        .option("movePreparedBackup", {
+          type: "boolean",
+          default: false,
+        })
 
         .option("tempDirectory", {
           default: () => tempy.directory(),
@@ -247,6 +251,10 @@ yargs
         .option("mysqlUser", {
           default: process.env.MYSQL_USER || "root",
           type: "string",
+        })
+        .option("movePreparedBackup", {
+          type: "boolean",
+          default: false,
         })
 
         .option("tempDirectory", {
