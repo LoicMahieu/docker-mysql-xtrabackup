@@ -114,6 +114,8 @@ export async function convertToSQL(options: IExtractOptions) {
       await pEvent(databaseTarget as Emitter<any, any>, "finish");
     }
   } finally {
+    const waitClose = pEvent(mysql, "close");
     mysql.kill();
+    await waitClose;
   }
 }
