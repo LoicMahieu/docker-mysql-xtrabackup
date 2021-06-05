@@ -226,6 +226,11 @@ yargs
           type: "string",
         })
 
+        .option("prepareVerbose", {
+          type: "boolean",
+          default: false
+        })
+
         .option("gcloudTargetPath", {
           default: process.env.GCLOUD_TARGET_PATH || "",
           required: true,

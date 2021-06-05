@@ -8,7 +8,7 @@ const isArchive = (v: string) =>
   v.slice(-1 * archiveExtention.length) === archiveExtention;
 const isIncremental = (v: string) => v.match(/^inc-/);
 
-export async function prepare(tempDirectory: string) {
+export async function prepare(verbose: boolean, tempDirectory: string) {
   const fullDir = join(tempDirectory, "full");
   const fullArchve = fullDir + archiveExtention;
 
@@ -33,7 +33,7 @@ export async function prepare(tempDirectory: string) {
   }
 
   log("Start apply log on FULL");
-  await xtraBackupPrepare(fullDir);
+  await xtraBackupPrepare(verbose, fullDir);
   const incrementals = (await readdir(tempDirectory))
     .filter(isIncremental)
     .filter((v) => !isArchive(v));
@@ -42,13 +42,17 @@ export async function prepare(tempDirectory: string) {
   for (const incremental of incrementals) {
     log("Start apply log on incremental: " + incremental);
     const incrementalDir = join(tempDirectory, incremental);
-    await xtraBackupPrepare(fullDir, incrementalDir);
+    await xtraBackupPrepare(verbose, fullDir, incrementalDir);
     log(`Remove incremental ${incremental}...`);
     await remove(incrementalDir);
   }
 }
 
-async function xtraBackupPrepare(targetDir: string, incrementalDir?: string) {
+async function xtraBackupPrepare(
+  verbose: boolean,
+  targetDir: string,
+  incrementalDir?: string
+) {
   await execa(
     "xtrabackup",
     [
@@ -57,6 +61,6 @@ async function xtraBackupPrepare(targetDir: string, incrementalDir?: string) {
       `--target-dir=${targetDir}`,
       !incrementalDir ? "" : `--incremental-dir=${incrementalDir}`,
     ].filter(Boolean),
-    { stdio: "inherit" }
+    { stdio: verbose ? "inherit" : ["ignore", "ignore", "inherit"] }
   );
 }

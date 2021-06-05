@@ -5,6 +5,7 @@ import { prepare } from "./lib/prepare";
 
 export interface IPrepareOptions extends IBaseOptions {
   tempDirectory: string;
+  prepareVerbose?: boolean;
 }
 
 export async function run(options: IPrepareOptions) {
@@ -13,7 +14,7 @@ export async function run(options: IPrepareOptions) {
   consoleHr();
   await downloadBackups(options);
   consoleHr();
-  await prepare(options.tempDirectory);
+  await prepare(options.prepareVerbose || false, options.tempDirectory);
   consoleHr();
 }
 

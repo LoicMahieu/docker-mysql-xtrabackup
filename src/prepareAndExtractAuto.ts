@@ -18,6 +18,7 @@ import { prepare } from "./lib/prepare";
 
 export type IPrepareAutoOptions = {
   gcloudTargetPath: string;
+  prepareVerbose?: boolean;
 } & IExtractOptions &
   IBaseOptions;
 
@@ -66,7 +67,7 @@ async function prepareAndExtract(
   await fs.ensureDir(extractDir);
 
   await rsync(options, from, tmpDir);
-  await prepare(tmpDir);
+  await prepare(options.prepareVerbose || false, tmpDir);
   if (options.mysqlDataDirectory !== tmpDir + "/full") {
     await copyPreparedBackup(
       tmpDir + "/full",
