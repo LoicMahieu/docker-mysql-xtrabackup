@@ -67,7 +67,13 @@ async function prepareAndExtract(
 
   await rsync(options, from, tmpDir);
   await prepare(tmpDir);
-  await copyPreparedBackup(tmpDir + "/full", options.mysqlDataDirectory, options);
+  if (options.mysqlDataDirectory !== tmpDir + "/full") {
+    await copyPreparedBackup(
+      tmpDir + "/full",
+      options.mysqlDataDirectory,
+      options
+    );
+  }
   await convertToSQL({
     ...options,
     tempDirectory: extractDir,
