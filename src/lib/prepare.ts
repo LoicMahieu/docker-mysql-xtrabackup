@@ -1,5 +1,5 @@
 import execa from "execa";
-import { pathExists, readdir } from "fs-extra";
+import { pathExists, readdir, remove } from "fs-extra";
 import { join } from "path";
 import { log } from "./log";
 import { archiveExtention, archiveExtract } from "./targz";
@@ -27,6 +27,8 @@ export async function prepare(tempDirectory: string) {
     if (!(await pathExists(incrementalDir))) {
       log(`Extract archive ${archive}...`);
       await archiveExtract(join(tempDirectory, archive), tempDirectory);
+      log(`Remove archive ${archive}...`);
+      await remove(join(tempDirectory, archive));
     }
   }
 
@@ -41,6 +43,8 @@ export async function prepare(tempDirectory: string) {
     log("Start apply log on incremental: " + incremental);
     const incrementalDir = join(tempDirectory, incremental);
     await xtraBackupPrepare(fullDir, incrementalDir);
+    log(`Remove incremental ${incremental}...`);
+    await remove(incrementalDir);
   }
 }
 
