@@ -1,4 +1,4 @@
-FROM node:10.10.0 as build
+FROM node:15 as build
 
 COPY ./package.json ./yarn.lock /build/
 WORKDIR /build
@@ -6,7 +6,7 @@ RUN yarn install --pure-lockfile
 COPY . /build
 RUN yarn build
 
-FROM mysql:5.6
+FROM mysql:5.6@sha256:e29f4d4b43951c766cd6bacca8d05ac545ec76bb7f42e798bed5e2038c5e2753
 
 RUN apt-get update && \
     apt-get install -y curl wget lsb-release python python-pip && \
