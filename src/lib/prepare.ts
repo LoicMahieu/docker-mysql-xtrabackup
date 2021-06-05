@@ -61,6 +61,6 @@ async function xtraBackupPrepare(
       `--target-dir=${targetDir}`,
       !incrementalDir ? "" : `--incremental-dir=${incrementalDir}`,
     ].filter(Boolean),
-    { stdio: verbose ? "inherit" : ["ignore", "ignore", "inherit"] }
+    { stdio: verbose ? "inherit" : "ignore" }
   );
 }
