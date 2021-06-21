@@ -30,7 +30,7 @@ export async function copyPreparedBackup(
   await fs.ensureDir(mysqlDataDirectory);
   if (options.movePreparedBackup) {
     log("Move prepared backup...");
-    await execa("mv", [from + '/*', mysqlDataDirectory]);
+    await execa("mv", [from + "/*", mysqlDataDirectory], { shell: true });
   } else {
     log("Copy prepared backup...");
     await copy(from, mysqlDataDirectory);
