@@ -1,5 +1,5 @@
 import execa from "execa";
-import fs, { copy, mkdirp, move } from "fs-extra";
+import fs, { copy, mkdirp } from "fs-extra";
 import pEvent, { Emitter } from "p-event";
 import path from "path";
 import zlib from "zlib";
@@ -30,7 +30,7 @@ export async function copyPreparedBackup(
   await fs.ensureDir(mysqlDataDirectory);
   if (options.movePreparedBackup) {
     log("Move prepared backup...");
-    await move(from, mysqlDataDirectory);
+    await execa("mv", [from + '/*', mysqlDataDirectory]);
   } else {
     log("Copy prepared backup...");
     await copy(from, mysqlDataDirectory);
